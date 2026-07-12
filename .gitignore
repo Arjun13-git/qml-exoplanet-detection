@@ -21,3 +21,8 @@ venv/
 data/raw/
 data/processed/
 models/saved/
+# Ignore data and environment files
+data/raw/*.csv
+data/processed/*.csv
+__pycache__/
+.ipynb_checkpoints/
