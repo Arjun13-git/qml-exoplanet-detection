@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Environments
+exoplanet_gpu/
+.venv/
+env/
+venv/
+
+# Data and Artifacts (Never commit raw telemetry or weights!)
+*.csv
+*.fits
+*.h5
+*.pt
+data/raw/
+data/processed/
+models/saved/
