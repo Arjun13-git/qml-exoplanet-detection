@@ -82,17 +82,17 @@ def plot_master_metrics(df):
         ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.012, f"{yval:.3f}", 
                 ha='center', va='bottom', fontsize=7.5, fontweight='bold', rotation=90)
 
-    # 3. Annotate Accuracy values (formatted as percentage)
+    # 3. Annotate Accuracy values (formatted as 2-decimal percentage)
     for bar in bars3:
         yval = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.012, f"{yval * 100:.1f}%", 
+        ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.012, f"{yval * 100:.2f}%", 
                 ha='center', va='bottom', fontsize=7.5, fontweight='bold', rotation=90, color='#381d63')
 
     plt.tight_layout()
     output_path = "reports/figures/classical_benchmark_metrics.png"
     plt.savefig(output_path, dpi=300)
     plt.close()
-    print(f"📊 Saved Metric Summary Plot with Accuracy labels: {output_path}")
+    print(f"📊 Saved Metric Summary Plot with 2-decimal Accuracy labels: {output_path}")
 
 def plot_auc_vs_runtime(df):
     """Plots computational trade-offs: Training Runtime (Log Scale) vs ROC-AUC."""
