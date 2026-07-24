@@ -317,23 +317,23 @@ def train_xenopulse_on_master():
     log_message(f"Inference Speed: {avg_inference_time_ms:.2f} ms/sample")
     log_message("==========================================")
 
+    # Append entry to classical_benchmark_results.csv with correct schema
     file_exists = os.path.exists(LOG_CSV_PATH)
     with open(LOG_CSV_PATH, mode='a', newline='') as csv_file:
-        fieldnames = ['model', 'accuracy', 'roc_auc', 'f1_score', 'precision', 'recall', 'inference_time_ms', 'parameters']
+        fieldnames = ['model_name', 'test_acc', 'precision', 'recall', 'f1_score', 'roc_auc', 'train_time_sec']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         if not file_exists:
             writer.writeheader()
 
         writer.writerow({
-            'model': 'XenoPulse-Net',
-            'accuracy': f"{acc:.4f}",
-            'roc_auc': f"{roc_auc:.4f}",
-            'f1_score': f"{f1:.4f}",
+            'model_name': 'XenoPulse-Net',
+            'test_acc': f"{acc * 100:.2f}",
             'precision': f"{precision:.4f}",
             'recall': f"{recall:.4f}",
-            'inference_time_ms': f"{avg_inference_time_ms:.2f}",
-            'parameters': total_params
+            'f1_score': f"{f1:.4f}",
+            'roc_auc': f"{roc_auc:.4f}",
+            'train_time_sec': f"{total_training_time:.2f}"
         })
 
     log_message(f"✅ Results successfully appended to {LOG_CSV_PATH} and {LOG_TXT_PATH}")
