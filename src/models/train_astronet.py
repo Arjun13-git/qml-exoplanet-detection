@@ -1,73 +1,215 @@
-# src/models/train_astronet.py
+import os
+import time
+import logging
+import csv
+from datetime import datetime
+import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import os
-from astronet import Astronet
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score
 
-def train_astronet():
-    print("🚀 Initializing Astronet Training Pipeline...")
-    
-    # 1. Load the preprocessed experimental tensors
-    tensor_path = "data/processed/split_tensors.pt"
-    if not os.path.exists(tensor_path):
-        raise FileNotFoundError(f"❌ Tensor file missing at {tensor_path}. Run Phase 2 first.")
+# Ensure root directory is in python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from src.data.dataset import prepare_dataloaders
+
+# 1. Setup File Paths
+os.makedirs("logs", exist_ok=True)
+run_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+run_txt_log = f"logs/astronet_train_{run_timestamp}.txt"
+master_txt_summary = "logs/classical_benchmark_summary.txt"
+master_csv_summary = "logs/classical_benchmark_results.csv"
+
+# 2. Setup Dual Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(run_txt_log),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+# 3. AstroNet Dual-View Architecture
+class AstroNet1D(nn.Module):
+    def __init__(self, input_len=200):
+        super().__init__()
+        # Branch 1: Wide View (Broader stellar context)
+        self.wide_branch = nn.Sequential(
+            nn.Conv1d(1, 32, kernel_size=9, stride=1, padding=4),
+            nn.BatchNorm1d(32),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            nn.Conv1d(32, 64, kernel_size=7, stride=1, padding=3),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            nn.AdaptiveAvgPool1d(1)
+        )
         
-    tensors = torch.load(tensor_path)
-    
-    # Conv1d expects input shape: (Batch, Channels, Length)
-    X_train = tensors["X_train"].unsqueeze(1)
-    y_train = tensors["y_train"]
-    X_val = tensors["X_val"].unsqueeze(1)
-    y_val = tensors["y_val"]
-    
-    print(f"📦 Loaded Training Data Shape: {X_train.shape}")
-    
-    # 2. Instantiate the Astronet model, loss function, and optimizer
-    model = Astronet(sequence_length=200, num_classes=3)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-    
-    # 3. Mini-Batch Training Loop
-    epochs = 10
-    print(f"⚙️ Commencing {epochs} experimental epochs on mini-batch with Astronet...")
-    
-    for epoch in range(epochs):
-        model.train() # Set model to training mode
+        # Branch 2: Narrow View (Fine transit details)
+        self.narrow_branch = nn.Sequential(
+            nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(32),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.MaxPool1d(2),
+            nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool1d(1)
+        )
         
-        # Zero the gradients
-        optimizer.zero_grad()
+        # Combined Classification FC Head
+        self.fc = nn.Sequential(
+            nn.Linear(64 + 128, 64),
+            nn.ReLU(),
+            nn.Dropout(0.4),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1)
+        )
+
+    def forward(self, x):
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
         
-        # Forward pass through dual branches
-        outputs = model(X_train)
-        loss = criterion(outputs, y_train)
+        out_wide = self.wide_branch(x).squeeze(-1)
+        out_narrow = self.narrow_branch(x).squeeze(-1)
         
-        # Backward pass (calculate gradients for both branches)
-        loss.backward()
+        combined = torch.cat([out_wide, out_narrow], dim=1)
+        return self.fc(combined)
+
+def save_benchmark_logs(model_name, metrics):
+    """Appends AstroNet metrics to master summary TXT and CSV files."""
+    
+    # A. Append to Master TXT Summary
+    with open(master_txt_summary, "a") as f:
+        f.write("=" * 65 + "\n")
+        f.write(f"MODEL: {model_name} | TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write("=" * 65 + "\n")
+        f.write(f"Test Accuracy:  {metrics['acc']*100:.2f}%\n")
+        f.write(f"Precision:      {metrics['precision']:.4f}\n")
+        f.write(f"Recall:         {metrics['recall']:.4f}\n")
+        f.write(f"F1-Score:       {metrics['f1']:.4f}\n")
+        f.write(f"ROC-AUC:        {metrics['auc']:.4f}\n")
+        f.write(f"Train Loss:     {metrics['train_loss']:.4f}\n")
+        f.write(f"Val Loss:       {metrics['val_loss']:.4f}\n")
+        f.write(f"Test Loss:      {metrics['test_loss']:.4f}\n")
+        f.write(f"Train Time:     {metrics['train_time']:.2f} seconds\n")
+        f.write("=" * 65 + "\n\n")
+
+    # B. Append to Master CSV Matrix
+    file_exists = os.path.exists(master_csv_summary)
+    headers = [
+        "timestamp", "model_name", "test_acc", "precision", 
+        "recall", "f1_score", "roc_auc", "train_loss", "val_loss", "test_loss", "train_time_sec"
+    ]
+    
+    with open(master_csv_summary, mode="a", newline="") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(headers)
+        writer.writerow([
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            model_name,
+            f"{metrics['acc']:.4f}",
+            f"{metrics['precision']:.4f}",
+            f"{metrics['recall']:.4f}",
+            f"{metrics['f1']:.4f}",
+            f"{metrics['auc']:.4f}",
+            f"{metrics['train_loss']:.4f}",
+            f"{metrics['val_loss']:.4f}",
+            f"{metrics['test_loss']:.4f}",
+            f"{metrics['train_time']:.2f}"
+        ])
         
-        # Update weights
-        optimizer.step()
-        
-        # Validation pass
+    logging.info(f"📝 Master TXT log updated: {master_txt_summary}")
+    logging.info(f"📊 Master CSV log updated: {master_csv_summary}")
+
+def train():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logging.info(f"Using device: {device}")
+
+    csv_path = '/home/arjunshenoy13/qml-exoplanet-detection/data/processed/master_lightcurves.csv'
+    train_loader, val_loader, test_loader, _, _ = prepare_dataloaders(csv_path=csv_path)
+
+    model = AstroNet1D().to(device)
+    criterion = nn.BCEWithLogitsLoss()
+    optimizer = optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=3, factor=0.5)
+
+    epochs = 30
+    start_time = time.time()
+
+    logging.info("🚀 Training AstroNet Model...")
+
+    for epoch in range(1, epochs + 1):
+        model.train()
+        train_loss = 0.0
+        for x_b, y_b in train_loader:
+            x_b, y_b = x_b.to(device), y_b.to(device).float()
+            optimizer.zero_grad()
+            out = model(x_b).squeeze(1)
+            loss = criterion(out, y_b)
+            loss.backward()
+            optimizer.step()
+            train_loss += loss.item() * len(y_b)
+        train_loss /= len(train_loader.dataset)
+
+        # Validation
         model.eval()
+        val_loss = 0.0
         with torch.no_grad():
-            val_outputs = model(X_val)
-            val_loss = criterion(val_outputs, y_val)
+            for x_b, y_b in val_loader:
+                x_b, y_b = x_b.to(device), y_b.to(device).float()
+                out = model(x_b).squeeze(1)
+                loss = criterion(out, y_b)
+                val_loss += loss.item() * len(y_b)
+        val_loss /= len(val_loader.dataset)
+        scheduler.step(val_loss)
+
+        logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+
+    total_train_time = time.time() - start_time
+
+    # Testing Evaluation
+    model.eval()
+    test_loss = 0.0
+    all_preds, all_probs, all_targets = [], [], []
+    with torch.no_grad():
+        for x_b, y_b in test_loader:
+            x_b, y_b = x_b.to(device), y_b.to(device).float()
+            out = model(x_b).squeeze(1)
+            loss = criterion(out, y_b)
+            test_loss += loss.item() * len(y_b)
+            probs = torch.sigmoid(out)
+            preds = (probs >= 0.5).long()
             
-            # Get predictions for accuracy tracking
-            _, predicted = torch.max(val_outputs, 1)
-            correct = (predicted == y_val).sum().item()
-            val_accuracy = correct / len(y_val) * 100
-            
-        if (epoch + 1) % 2 == 0:
-            print(f"   ↳ Epoch [{epoch+1}/{epochs}] | Train Loss: {loss.item():.4f} | Val Loss: {val_loss.item():.4f} | Val Acc: {val_accuracy:.1f}%")
-            
-    print("✅ Astronet experimental training loop successfully completed!")
-    
-    # Save the experimental weights
-    os.makedirs("models/saved", exist_ok=True)
-    torch.save(model.state_dict(), "models/saved/astronet_experimental_weights.pth")
-    print("💾 Experimental weights saved to models/saved/astronet_experimental_weights.pth")
+            all_probs.extend(probs.cpu().numpy())
+            all_preds.extend(preds.cpu().numpy())
+            all_targets.extend(y_b.cpu().numpy())
+
+    test_loss /= len(test_loader.dataset)
+    acc = accuracy_score(all_targets, all_preds)
+    prec, rec, f1, _ = precision_recall_fscore_support(all_targets, all_preds, average='binary')
+    auc = roc_auc_score(all_targets, all_probs)
+
+    logging.info("==== 🏆 FINAL ASTRONET TEST RESULTS ====")
+    logging.info(f"Accuracy:  {acc*100:.2f}%")
+    logging.info(f"Precision: {prec:.4f}")
+    logging.info(f"Recall:    {rec:.4f}")
+    logging.info(f"F1-Score:  {f1:.4f}")
+    logging.info(f"ROC-AUC:   {auc:.4f}")
+
+    save_benchmark_logs("AstroNet", {
+        "acc": acc, "precision": prec, "recall": rec, "f1": f1, "auc": auc,
+        "train_loss": train_loss, "val_loss": val_loss, "test_loss": test_loss,
+        "train_time": total_train_time
+    })
 
 if __name__ == "__main__":
-    train_astronet()
+    train()
