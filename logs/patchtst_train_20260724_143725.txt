@@ -1,0 +1,50 @@
+2026-07-24 14:37:25,813 [INFO] Using device: cuda
+2026-07-24 14:37:26,828 [INFO] 🚀 Training PatchTST Advanced Baseline...
+2026-07-24 14:37:27,424 [INFO] Epoch 01/40 | Train Loss: 0.6176 | Val Loss: 0.6068
+2026-07-24 14:37:27,718 [INFO] Epoch 02/40 | Train Loss: 0.6088 | Val Loss: 0.6046
+2026-07-24 14:37:28,005 [INFO] Epoch 03/40 | Train Loss: 0.6059 | Val Loss: 0.6030
+2026-07-24 14:37:28,368 [INFO] Epoch 04/40 | Train Loss: 0.6075 | Val Loss: 0.6027
+2026-07-24 14:37:28,714 [INFO] Epoch 05/40 | Train Loss: 0.6061 | Val Loss: 0.6024
+2026-07-24 14:37:29,064 [INFO] Epoch 06/40 | Train Loss: 0.6031 | Val Loss: 0.6040
+2026-07-24 14:37:29,413 [INFO] Epoch 07/40 | Train Loss: 0.6062 | Val Loss: 0.6067
+2026-07-24 14:37:29,768 [INFO] Epoch 08/40 | Train Loss: 0.6067 | Val Loss: 0.6082
+2026-07-24 14:37:30,128 [INFO] Epoch 09/40 | Train Loss: 0.6033 | Val Loss: 0.6102
+2026-07-24 14:37:30,480 [INFO] Epoch 10/40 | Train Loss: 0.6056 | Val Loss: 0.6077
+2026-07-24 14:37:30,838 [INFO] Epoch 11/40 | Train Loss: 0.6039 | Val Loss: 0.6022
+2026-07-24 14:37:31,192 [INFO] Epoch 12/40 | Train Loss: 0.6038 | Val Loss: 0.6022
+2026-07-24 14:37:31,543 [INFO] Epoch 13/40 | Train Loss: 0.6017 | Val Loss: 0.6019
+2026-07-24 14:37:31,890 [INFO] Epoch 14/40 | Train Loss: 0.6027 | Val Loss: 0.6040
+2026-07-24 14:37:32,233 [INFO] Epoch 15/40 | Train Loss: 0.6015 | Val Loss: 0.6027
+2026-07-24 14:37:32,580 [INFO] Epoch 16/40 | Train Loss: 0.6008 | Val Loss: 0.6020
+2026-07-24 14:37:32,922 [INFO] Epoch 17/40 | Train Loss: 0.6036 | Val Loss: 0.6024
+2026-07-24 14:37:33,224 [INFO] Epoch 18/40 | Train Loss: 0.6006 | Val Loss: 0.6071
+2026-07-24 14:37:33,511 [INFO] Epoch 19/40 | Train Loss: 0.6013 | Val Loss: 0.6023
+2026-07-24 14:37:33,793 [INFO] Epoch 20/40 | Train Loss: 0.6008 | Val Loss: 0.6031
+2026-07-24 14:37:34,079 [INFO] Epoch 21/40 | Train Loss: 0.6023 | Val Loss: 0.6025
+2026-07-24 14:37:34,363 [INFO] Epoch 22/40 | Train Loss: 0.6023 | Val Loss: 0.6041
+2026-07-24 14:37:34,644 [INFO] Epoch 23/40 | Train Loss: 0.6022 | Val Loss: 0.6025
+2026-07-24 14:37:34,929 [INFO] Epoch 24/40 | Train Loss: 0.6019 | Val Loss: 0.6026
+2026-07-24 14:37:35,214 [INFO] Epoch 25/40 | Train Loss: 0.6012 | Val Loss: 0.6021
+2026-07-24 14:37:35,497 [INFO] Epoch 26/40 | Train Loss: 0.6002 | Val Loss: 0.6025
+2026-07-24 14:37:35,796 [INFO] Epoch 27/40 | Train Loss: 0.6021 | Val Loss: 0.6023
+2026-07-24 14:37:36,084 [INFO] Epoch 28/40 | Train Loss: 0.5994 | Val Loss: 0.6024
+2026-07-24 14:37:36,381 [INFO] Epoch 29/40 | Train Loss: 0.6007 | Val Loss: 0.6025
+2026-07-24 14:37:36,665 [INFO] Epoch 30/40 | Train Loss: 0.6000 | Val Loss: 0.6022
+2026-07-24 14:37:36,950 [INFO] Epoch 31/40 | Train Loss: 0.6003 | Val Loss: 0.6026
+2026-07-24 14:37:37,233 [INFO] Epoch 32/40 | Train Loss: 0.6006 | Val Loss: 0.6024
+2026-07-24 14:37:37,524 [INFO] Epoch 33/40 | Train Loss: 0.5992 | Val Loss: 0.6027
+2026-07-24 14:37:37,813 [INFO] Epoch 34/40 | Train Loss: 0.6005 | Val Loss: 0.6024
+2026-07-24 14:37:38,101 [INFO] Epoch 35/40 | Train Loss: 0.6016 | Val Loss: 0.6025
+2026-07-24 14:37:38,384 [INFO] Epoch 36/40 | Train Loss: 0.6014 | Val Loss: 0.6025
+2026-07-24 14:37:38,667 [INFO] Epoch 37/40 | Train Loss: 0.6010 | Val Loss: 0.6024
+2026-07-24 14:37:38,950 [INFO] Epoch 38/40 | Train Loss: 0.6017 | Val Loss: 0.6023
+2026-07-24 14:37:39,239 [INFO] Epoch 39/40 | Train Loss: 0.6012 | Val Loss: 0.6024
+2026-07-24 14:37:39,524 [INFO] Epoch 40/40 | Train Loss: 0.6001 | Val Loss: 0.6023
+2026-07-24 14:37:39,555 [INFO] ==== 🏆 FINAL PatchTST TEST RESULTS ====
+2026-07-24 14:37:39,556 [INFO] Accuracy:  71.26%
+2026-07-24 14:37:39,556 [INFO] Precision: 0.7126
+2026-07-24 14:37:39,556 [INFO] Recall:    1.0000
+2026-07-24 14:37:39,556 [INFO] F1-Score:  0.8322
+2026-07-24 14:37:39,556 [INFO] ROC-AUC:   0.5429
+2026-07-24 14:37:39,556 [INFO] 📝 Master TXT log updated: logs/classical_benchmark_summary.txt
+2026-07-24 14:37:39,556 [INFO] 📊 Master CSV log updated: logs/classical_benchmark_results.csv
