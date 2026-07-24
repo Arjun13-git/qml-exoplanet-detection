@@ -1,0 +1,51 @@
+=== XenoPulse-Net Master Dataset Benchmark ===
+🚀 Execution Device: cuda
+📂 Reading master CSV: /home/arjunshenoy13/qml-exoplanet-detection/data/processed/master_lightcurves.csv
+🎯 Target column detected: 'label'
+📊 Dataset Loaded: 2069 samples, sequence length = 201
+⚖️ Class distribution: Positives (1) = 1472, Negatives (0) = 597
+🧠 Total Model Parameters: 711,361
+🏋️ Starting Training for 30 Epochs...
+Epoch [01/30] - Loss: 0.543820
+Epoch [02/30] - Loss: 0.418108
+Epoch [03/30] - Loss: 0.379320
+Epoch [04/30] - Loss: 0.341147
+Epoch [05/30] - Loss: 0.308223
+Epoch [06/30] - Loss: 0.298018
+Epoch [07/30] - Loss: 0.291179
+Epoch [08/30] - Loss: 0.279468
+Epoch [09/30] - Loss: 0.269178
+Epoch [10/30] - Loss: 0.245980
+Epoch [11/30] - Loss: 0.256292
+Epoch [12/30] - Loss: 0.219874
+Epoch [13/30] - Loss: 0.201886
+Epoch [14/30] - Loss: 0.176036
+Epoch [15/30] - Loss: 0.156928
+Epoch [16/30] - Loss: 0.148952
+Epoch [17/30] - Loss: 0.148408
+Epoch [18/30] - Loss: 0.131193
+Epoch [19/30] - Loss: 0.115231
+Epoch [20/30] - Loss: 0.101016
+Epoch [21/30] - Loss: 0.099883
+Epoch [22/30] - Loss: 0.086531
+Epoch [23/30] - Loss: 0.081333
+Epoch [24/30] - Loss: 0.081634
+Epoch [25/30] - Loss: 0.064689
+Epoch [26/30] - Loss: 0.063667
+Epoch [27/30] - Loss: 0.058683
+Epoch [28/30] - Loss: 0.057745
+Epoch [29/30] - Loss: 0.053197
+Epoch [30/30] - Loss: 0.055298
+⏱️ Training Completed in 15.99 seconds.
+
+==========================================
+📊 Real Dataset Evaluation Metrics
+==========================================
+Accuracy:        0.8768
+ROC-AUC:         0.9324
+F1-Score:        0.9163
+Precision:       0.8885
+Recall:          0.9458
+Inference Speed: 0.12 ms/sample
+==========================================
+✅ Results successfully appended to logs/classical_benchmark_results.csv and logs/xenopulse_net.txt
