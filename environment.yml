@@ -1,0 +1,40 @@
+name: galaxy_gpu
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - jupyter
+  # We let pip handle the deep learning/quantum libraries
+  # to ensure they hook into your Arch Linux CUDA toolkit correctly.
+  - pip:
+      # Deep Learning
+      - tensorflow[and-cuda]
+      - torch
+      - torchvision
+      - torchaudio
+
+      # Quantum Libraries
+      - qiskit
+      - pennylane
+      - pennylane-qiskit
+      - pennylane-lightning[gpu]
+      - cuquantum
+
+      # LLM / Agentic Libraries
+      - langchain
+      - langflow
+
+      # API & Database
+      - fastapi
+      - uvicorn
+      - psycopg2-binary  # PostgreSQL adapter
+
+      # Cryptography
+      - tenseal  # Microsoft SEAL Python wrapper
