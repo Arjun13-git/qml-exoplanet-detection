@@ -1,0 +1,40 @@
+2026-07-24 15:01:49,390 [INFO] Using device: cuda
+2026-07-24 15:01:50,401 [INFO] 🚀 Training Extended LSTM (xLSTM) Baseline Model...
+2026-07-24 15:02:12,014 [INFO] Epoch 01/30 | Train Loss: 0.6049 | Val Loss: 0.6016
+2026-07-24 15:02:33,521 [INFO] Epoch 02/30 | Train Loss: 0.6049 | Val Loss: 0.6020
+2026-07-24 15:02:54,731 [INFO] Epoch 03/30 | Train Loss: 0.6043 | Val Loss: 0.6031
+2026-07-24 15:03:16,115 [INFO] Epoch 04/30 | Train Loss: 0.6031 | Val Loss: 0.6013
+2026-07-24 15:03:37,869 [INFO] Epoch 05/30 | Train Loss: 0.6032 | Val Loss: 0.6013
+2026-07-24 15:03:59,725 [INFO] Epoch 06/30 | Train Loss: 0.6015 | Val Loss: 0.6026
+2026-07-24 15:04:21,398 [INFO] Epoch 07/30 | Train Loss: 0.6041 | Val Loss: 0.6010
+2026-07-24 15:04:42,744 [INFO] Epoch 08/30 | Train Loss: 0.6032 | Val Loss: 0.6014
+2026-07-24 15:05:04,180 [INFO] Epoch 09/30 | Train Loss: 0.6049 | Val Loss: 0.5962
+2026-07-24 15:05:25,445 [INFO] Epoch 10/30 | Train Loss: 0.6071 | Val Loss: 0.6017
+2026-07-24 15:05:46,745 [INFO] Epoch 11/30 | Train Loss: 0.6026 | Val Loss: 0.6033
+2026-07-24 15:06:07,870 [INFO] Epoch 12/30 | Train Loss: 0.6033 | Val Loss: 0.6017
+2026-07-24 15:06:29,061 [INFO] Epoch 13/30 | Train Loss: 0.6022 | Val Loss: 0.6019
+2026-07-24 15:06:50,369 [INFO] Epoch 14/30 | Train Loss: 0.5999 | Val Loss: 0.6015
+2026-07-24 15:07:11,649 [INFO] Epoch 15/30 | Train Loss: 0.6006 | Val Loss: 0.6014
+2026-07-24 15:07:32,990 [INFO] Epoch 16/30 | Train Loss: 0.6004 | Val Loss: 0.6014
+2026-07-24 15:07:54,529 [INFO] Epoch 17/30 | Train Loss: 0.5997 | Val Loss: 0.6013
+2026-07-24 15:08:16,158 [INFO] Epoch 18/30 | Train Loss: 0.5995 | Val Loss: 0.6012
+2026-07-24 15:08:38,266 [INFO] Epoch 19/30 | Train Loss: 0.6008 | Val Loss: 0.6011
+2026-07-24 15:08:59,726 [INFO] Epoch 20/30 | Train Loss: 0.5999 | Val Loss: 0.6011
+2026-07-24 15:09:21,025 [INFO] Epoch 21/30 | Train Loss: 0.6020 | Val Loss: 0.6009
+2026-07-24 15:09:42,263 [INFO] Epoch 22/30 | Train Loss: 0.6030 | Val Loss: 0.6009
+2026-07-24 15:10:03,434 [INFO] Epoch 23/30 | Train Loss: 0.6025 | Val Loss: 0.6008
+2026-07-24 15:10:24,623 [INFO] Epoch 24/30 | Train Loss: 0.6010 | Val Loss: 0.6010
+2026-07-24 15:10:45,876 [INFO] Epoch 25/30 | Train Loss: 0.5980 | Val Loss: 0.6006
+2026-07-24 15:11:07,110 [INFO] Epoch 26/30 | Train Loss: 0.5989 | Val Loss: 0.6006
+2026-07-24 15:11:28,705 [INFO] Epoch 27/30 | Train Loss: 0.5996 | Val Loss: 0.6005
+2026-07-24 15:11:50,086 [INFO] Epoch 28/30 | Train Loss: 0.5998 | Val Loss: 0.6004
+2026-07-24 15:12:11,257 [INFO] Epoch 29/30 | Train Loss: 0.6001 | Val Loss: 0.6003
+2026-07-24 15:12:32,615 [INFO] Epoch 30/30 | Train Loss: 0.6010 | Val Loss: 0.6002
+2026-07-24 15:12:34,249 [INFO] ==== 🏆 FINAL xLSTM TEST RESULTS ====
+2026-07-24 15:12:34,250 [INFO] Accuracy:  71.50%
+2026-07-24 15:12:34,250 [INFO] Precision: 0.7143
+2026-07-24 15:12:34,250 [INFO] Recall:    1.0000
+2026-07-24 15:12:34,250 [INFO] F1-Score:  0.8333
+2026-07-24 15:12:34,250 [INFO] ROC-AUC:   0.5394
+2026-07-24 15:12:34,250 [INFO] 📝 Master TXT log updated: logs/classical_benchmark_summary.txt
+2026-07-24 15:12:34,250 [INFO] 📊 Master CSV log updated: logs/classical_benchmark_results.csv
