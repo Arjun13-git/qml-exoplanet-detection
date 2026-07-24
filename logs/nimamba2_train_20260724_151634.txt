@@ -1,0 +1,40 @@
+2026-07-24 15:16:34,650 [INFO] Using device: cuda
+2026-07-24 15:16:35,728 [INFO] 🚀 Training Neural Implicit Mamba-2 (NiMamba-2) Baseline Model...
+2026-07-24 15:16:43,972 [INFO] Epoch 01/30 | Train Loss: 0.6101 | Val Loss: 0.6026
+2026-07-24 15:16:52,290 [INFO] Epoch 02/30 | Train Loss: 0.6059 | Val Loss: 0.6030
+2026-07-24 15:17:00,388 [INFO] Epoch 03/30 | Train Loss: 0.6031 | Val Loss: 0.6023
+2026-07-24 15:17:08,295 [INFO] Epoch 04/30 | Train Loss: 0.6029 | Val Loss: 0.6034
+2026-07-24 15:17:16,185 [INFO] Epoch 05/30 | Train Loss: 0.6034 | Val Loss: 0.6029
+2026-07-24 15:17:24,166 [INFO] Epoch 06/30 | Train Loss: 0.6032 | Val Loss: 0.6021
+2026-07-24 15:17:32,256 [INFO] Epoch 07/30 | Train Loss: 0.6037 | Val Loss: 0.6031
+2026-07-24 15:17:40,165 [INFO] Epoch 08/30 | Train Loss: 0.6043 | Val Loss: 0.6021
+2026-07-24 15:17:48,027 [INFO] Epoch 09/30 | Train Loss: 0.6029 | Val Loss: 0.6038
+2026-07-24 15:17:56,045 [INFO] Epoch 10/30 | Train Loss: 0.6035 | Val Loss: 0.6028
+2026-07-24 15:18:04,021 [INFO] Epoch 11/30 | Train Loss: 0.6015 | Val Loss: 0.6021
+2026-07-24 15:18:11,958 [INFO] Epoch 12/30 | Train Loss: 0.6029 | Val Loss: 0.6024
+2026-07-24 15:18:19,961 [INFO] Epoch 13/30 | Train Loss: 0.6027 | Val Loss: 0.6021
+2026-07-24 15:18:27,840 [INFO] Epoch 14/30 | Train Loss: 0.6029 | Val Loss: 0.6020
+2026-07-24 15:18:35,691 [INFO] Epoch 15/30 | Train Loss: 0.6010 | Val Loss: 0.6020
+2026-07-24 15:18:43,634 [INFO] Epoch 16/30 | Train Loss: 0.6017 | Val Loss: 0.6020
+2026-07-24 15:18:51,504 [INFO] Epoch 17/30 | Train Loss: 0.6020 | Val Loss: 0.6021
+2026-07-24 15:18:59,505 [INFO] Epoch 18/30 | Train Loss: 0.6020 | Val Loss: 0.6021
+2026-07-24 15:19:07,474 [INFO] Epoch 19/30 | Train Loss: 0.6027 | Val Loss: 0.6021
+2026-07-24 15:19:15,377 [INFO] Epoch 20/30 | Train Loss: 0.6019 | Val Loss: 0.6021
+2026-07-24 15:19:23,329 [INFO] Epoch 21/30 | Train Loss: 0.6015 | Val Loss: 0.6021
+2026-07-24 15:19:31,288 [INFO] Epoch 22/30 | Train Loss: 0.6019 | Val Loss: 0.6020
+2026-07-24 15:19:39,134 [INFO] Epoch 23/30 | Train Loss: 0.6023 | Val Loss: 0.6020
+2026-07-24 15:19:46,978 [INFO] Epoch 24/30 | Train Loss: 0.6017 | Val Loss: 0.6020
+2026-07-24 15:19:54,846 [INFO] Epoch 25/30 | Train Loss: 0.6009 | Val Loss: 0.6020
+2026-07-24 15:20:02,765 [INFO] Epoch 26/30 | Train Loss: 0.6014 | Val Loss: 0.6020
+2026-07-24 15:20:10,855 [INFO] Epoch 27/30 | Train Loss: 0.6018 | Val Loss: 0.6020
+2026-07-24 15:20:18,926 [INFO] Epoch 28/30 | Train Loss: 0.5996 | Val Loss: 0.6020
+2026-07-24 15:20:26,816 [INFO] Epoch 29/30 | Train Loss: 0.6013 | Val Loss: 0.6020
+2026-07-24 15:20:34,897 [INFO] Epoch 30/30 | Train Loss: 0.6014 | Val Loss: 0.6020
+2026-07-24 15:20:35,379 [INFO] ==== 🏆 FINAL NiMamba-2 TEST RESULTS ====
+2026-07-24 15:20:35,379 [INFO] Accuracy:  71.26%
+2026-07-24 15:20:35,379 [INFO] Precision: 0.7126
+2026-07-24 15:20:35,379 [INFO] Recall:    1.0000
+2026-07-24 15:20:35,379 [INFO] F1-Score:  0.8322
+2026-07-24 15:20:35,379 [INFO] ROC-AUC:   0.5829
+2026-07-24 15:20:35,379 [INFO] 📝 Master TXT log updated: logs/classical_benchmark_summary.txt
+2026-07-24 15:20:35,379 [INFO] 📊 Master CSV log updated: logs/classical_benchmark_results.csv
