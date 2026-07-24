@@ -1,0 +1,377 @@
+=== QNN BENCHMARK RUN LOG ===
+Timestamp: 2026-07-25 00:01:34
+
+==================================================
+Training DATA_REUPLOADING | Qubits: 4 | Latent: CAE
+==================================================
+Epoch [01/30] - Loss: 0.606133
+Epoch [02/30] - Loss: 0.599590
+Epoch [03/30] - Loss: 0.595358
+Epoch [04/30] - Loss: 0.590701
+Epoch [05/30] - Loss: 0.588268
+Epoch [06/30] - Loss: 0.587336
+Epoch [07/30] - Loss: 0.584677
+Epoch [08/30] - Loss: 0.582964
+Epoch [09/30] - Loss: 0.584379
+Epoch [10/30] - Loss: 0.582309
+Epoch [11/30] - Loss: 0.581343
+Epoch [12/30] - Loss: 0.584405
+Epoch [13/30] - Loss: 0.580603
+Epoch [14/30] - Loss: 0.580071
+Epoch [15/30] - Loss: 0.581516
+Epoch [16/30] - Loss: 0.578163
+Epoch [17/30] - Loss: 0.579780
+Epoch [18/30] - Loss: 0.579555
+Epoch [19/30] - Loss: 0.577916
+Epoch [20/30] - Loss: 0.581390
+Epoch [21/30] - Loss: 0.579901
+Epoch [22/30] - Loss: 0.576205
+Epoch [23/30] - Loss: 0.581186
+Epoch [24/30] - Loss: 0.577285
+Epoch [25/30] - Loss: 0.578962
+Epoch [26/30] - Loss: 0.580847
+Epoch [27/30] - Loss: 0.576457
+Epoch [28/30] - Loss: 0.578412
+Epoch [29/30] - Loss: 0.578605
+Epoch [30/30] - Loss: 0.576527
+
+--------------------------------------------------
+Results for DATA_REUPLOADING (4 Qubits, Latent: CAE):
+  Execution Time: 28.40s
+  Accuracy:       71.50%
+  ROC-AUC:        0.6249
+  Precision:      0.7143
+  Recall:         1.0000
+  F1-Score:       0.8333
+--------------------------------------------------
+
+
+==================================================
+Training VQC | Qubits: 4 | Latent: CAE
+==================================================
+Epoch [01/30] - Loss: 0.598914
+Epoch [02/30] - Loss: 0.597687
+Epoch [03/30] - Loss: 0.593448
+Epoch [04/30] - Loss: 0.593214
+Epoch [05/30] - Loss: 0.592042
+Epoch [06/30] - Loss: 0.589272
+Epoch [07/30] - Loss: 0.589271
+Epoch [08/30] - Loss: 0.588046
+Epoch [09/30] - Loss: 0.587715
+Epoch [10/30] - Loss: 0.587383
+Epoch [11/30] - Loss: 0.587390
+Epoch [12/30] - Loss: 0.587212
+Epoch [13/30] - Loss: 0.586762
+Epoch [14/30] - Loss: 0.590237
+Epoch [15/30] - Loss: 0.587409
+Epoch [16/30] - Loss: 0.584954
+Epoch [17/30] - Loss: 0.586759
+Epoch [18/30] - Loss: 0.583648
+Epoch [19/30] - Loss: 0.587331
+Epoch [20/30] - Loss: 0.584174
+Epoch [21/30] - Loss: 0.584905
+Epoch [22/30] - Loss: 0.583427
+Epoch [23/30] - Loss: 0.585946
+Epoch [24/30] - Loss: 0.583694
+Epoch [25/30] - Loss: 0.583563
+Epoch [26/30] - Loss: 0.585039
+Epoch [27/30] - Loss: 0.582986
+Epoch [28/30] - Loss: 0.584910
+Epoch [29/30] - Loss: 0.584916
+Epoch [30/30] - Loss: 0.583610
+
+--------------------------------------------------
+Results for VQC (4 Qubits, Latent: CAE):
+  Execution Time: 18.79s
+  Accuracy:       71.26%
+  ROC-AUC:        0.6357
+  Precision:      0.7126
+  Recall:         1.0000
+  F1-Score:       0.8322
+--------------------------------------------------
+
+
+==================================================
+Training DATA_REUPLOADING | Qubits: 4 | Latent: PCA
+==================================================
+Epoch [01/30] - Loss: 0.698391
+Epoch [02/30] - Loss: 0.625412
+Epoch [03/30] - Loss: 0.600354
+Epoch [04/30] - Loss: 0.583890
+Epoch [05/30] - Loss: 0.575934
+Epoch [06/30] - Loss: 0.565932
+Epoch [07/30] - Loss: 0.561347
+Epoch [08/30] - Loss: 0.556384
+Epoch [09/30] - Loss: 0.556122
+Epoch [10/30] - Loss: 0.551818
+Epoch [11/30] - Loss: 0.551013
+Epoch [12/30] - Loss: 0.547203
+Epoch [13/30] - Loss: 0.546478
+Epoch [14/30] - Loss: 0.544870
+Epoch [15/30] - Loss: 0.543585
+Epoch [16/30] - Loss: 0.541394
+Epoch [17/30] - Loss: 0.539166
+Epoch [18/30] - Loss: 0.537145
+Epoch [19/30] - Loss: 0.535556
+Epoch [20/30] - Loss: 0.535111
+Epoch [21/30] - Loss: 0.532284
+Epoch [22/30] - Loss: 0.532184
+Epoch [23/30] - Loss: 0.528376
+Epoch [24/30] - Loss: 0.526392
+Epoch [25/30] - Loss: 0.525824
+Epoch [26/30] - Loss: 0.527107
+Epoch [27/30] - Loss: 0.524970
+Epoch [28/30] - Loss: 0.523664
+Epoch [29/30] - Loss: 0.525175
+Epoch [30/30] - Loss: 0.522302
+
+--------------------------------------------------
+Results for DATA_REUPLOADING (4 Qubits, Latent: PCA):
+  Execution Time: 28.31s
+  Accuracy:       72.22%
+  ROC-AUC:        0.7566
+  Precision:      0.7228
+  Recall:         0.9898
+  F1-Score:       0.8355
+--------------------------------------------------
+
+
+==================================================
+Training VQC | Qubits: 4 | Latent: PCA
+==================================================
+Epoch [01/30] - Loss: 0.604566
+Epoch [02/30] - Loss: 0.596061
+Epoch [03/30] - Loss: 0.590333
+Epoch [04/30] - Loss: 0.583111
+Epoch [05/30] - Loss: 0.577538
+Epoch [06/30] - Loss: 0.573349
+Epoch [07/30] - Loss: 0.571061
+Epoch [08/30] - Loss: 0.568669
+Epoch [09/30] - Loss: 0.565406
+Epoch [10/30] - Loss: 0.563158
+Epoch [11/30] - Loss: 0.560366
+Epoch [12/30] - Loss: 0.559189
+Epoch [13/30] - Loss: 0.557729
+Epoch [14/30] - Loss: 0.558569
+Epoch [15/30] - Loss: 0.555298
+Epoch [16/30] - Loss: 0.553752
+Epoch [17/30] - Loss: 0.555494
+Epoch [18/30] - Loss: 0.552058
+Epoch [19/30] - Loss: 0.551462
+Epoch [20/30] - Loss: 0.551134
+Epoch [21/30] - Loss: 0.550186
+Epoch [22/30] - Loss: 0.550944
+Epoch [23/30] - Loss: 0.550503
+Epoch [24/30] - Loss: 0.548639
+Epoch [25/30] - Loss: 0.548492
+Epoch [26/30] - Loss: 0.549469
+Epoch [27/30] - Loss: 0.545082
+Epoch [28/30] - Loss: 0.544201
+Epoch [29/30] - Loss: 0.545740
+Epoch [30/30] - Loss: 0.543804
+
+--------------------------------------------------
+Results for VQC (4 Qubits, Latent: PCA):
+  Execution Time: 18.63s
+  Accuracy:       72.46%
+  ROC-AUC:        0.7382
+  Precision:      0.7224
+  Recall:         0.9966
+  F1-Score:       0.8376
+--------------------------------------------------
+
+
+==================================================
+Training DATA_REUPLOADING | Qubits: 8 | Latent: CAE
+==================================================
+Epoch [01/30] - Loss: 0.898434
+Epoch [02/30] - Loss: 0.741067
+Epoch [03/30] - Loss: 0.662987
+Epoch [04/30] - Loss: 0.615195
+Epoch [05/30] - Loss: 0.582708
+Epoch [06/30] - Loss: 0.559747
+Epoch [07/30] - Loss: 0.545087
+Epoch [08/30] - Loss: 0.541364
+Epoch [09/30] - Loss: 0.532207
+Epoch [10/30] - Loss: 0.525940
+Epoch [11/30] - Loss: 0.520945
+Epoch [12/30] - Loss: 0.519118
+Epoch [13/30] - Loss: 0.515634
+Epoch [14/30] - Loss: 0.513862
+Epoch [15/30] - Loss: 0.513731
+Epoch [16/30] - Loss: 0.510839
+Epoch [17/30] - Loss: 0.511274
+Epoch [18/30] - Loss: 0.508860
+Epoch [19/30] - Loss: 0.506921
+Epoch [20/30] - Loss: 0.504853
+Epoch [21/30] - Loss: 0.506402
+Epoch [22/30] - Loss: 0.503666
+Epoch [23/30] - Loss: 0.502314
+Epoch [24/30] - Loss: 0.502673
+Epoch [25/30] - Loss: 0.501302
+Epoch [26/30] - Loss: 0.502320
+Epoch [27/30] - Loss: 0.499558
+Epoch [28/30] - Loss: 0.499677
+Epoch [29/30] - Loss: 0.498118
+Epoch [30/30] - Loss: 0.497602
+
+--------------------------------------------------
+Results for DATA_REUPLOADING (8 Qubits, Latent: CAE):
+  Execution Time: 61.82s
+  Accuracy:       79.95%
+  ROC-AUC:        0.7680
+  Precision:      0.8292
+  Recall:         0.9051
+  F1-Score:       0.8655
+--------------------------------------------------
+
+
+==================================================
+Training VQC | Qubits: 8 | Latent: CAE
+==================================================
+Epoch [01/30] - Loss: 0.669282
+Epoch [02/30] - Loss: 0.614067
+Epoch [03/30] - Loss: 0.588070
+Epoch [04/30] - Loss: 0.566523
+Epoch [05/30] - Loss: 0.556768
+Epoch [06/30] - Loss: 0.546777
+Epoch [07/30] - Loss: 0.541979
+Epoch [08/30] - Loss: 0.539026
+Epoch [09/30] - Loss: 0.534950
+Epoch [10/30] - Loss: 0.533000
+Epoch [11/30] - Loss: 0.528129
+Epoch [12/30] - Loss: 0.527504
+Epoch [13/30] - Loss: 0.525607
+Epoch [14/30] - Loss: 0.524023
+Epoch [15/30] - Loss: 0.522800
+Epoch [16/30] - Loss: 0.520182
+Epoch [17/30] - Loss: 0.517162
+Epoch [18/30] - Loss: 0.516458
+Epoch [19/30] - Loss: 0.512463
+Epoch [20/30] - Loss: 0.514055
+Epoch [21/30] - Loss: 0.513455
+Epoch [22/30] - Loss: 0.514636
+Epoch [23/30] - Loss: 0.510637
+Epoch [24/30] - Loss: 0.509827
+Epoch [25/30] - Loss: 0.511174
+Epoch [26/30] - Loss: 0.508568
+Epoch [27/30] - Loss: 0.507795
+Epoch [28/30] - Loss: 0.512685
+Epoch [29/30] - Loss: 0.508404
+Epoch [30/30] - Loss: 0.508076
+
+--------------------------------------------------
+Results for VQC (8 Qubits, Latent: CAE):
+  Execution Time: 41.77s
+  Accuracy:       71.98%
+  ROC-AUC:        0.8052
+  Precision:      0.7221
+  Recall:         0.9864
+  F1-Score:       0.8338
+--------------------------------------------------
+
+
+==================================================
+Training DATA_REUPLOADING | Qubits: 8 | Latent: PCA
+==================================================
+Epoch [01/30] - Loss: 0.685544
+Epoch [02/30] - Loss: 0.625876
+Epoch [03/30] - Loss: 0.596571
+Epoch [04/30] - Loss: 0.578315
+Epoch [05/30] - Loss: 0.563893
+Epoch [06/30] - Loss: 0.552436
+Epoch [07/30] - Loss: 0.546349
+Epoch [08/30] - Loss: 0.542983
+Epoch [09/30] - Loss: 0.541387
+Epoch [10/30] - Loss: 0.537894
+Epoch [11/30] - Loss: 0.539223
+Epoch [12/30] - Loss: 0.538389
+Epoch [13/30] - Loss: 0.534909
+Epoch [14/30] - Loss: 0.535607
+Epoch [15/30] - Loss: 0.532926
+Epoch [16/30] - Loss: 0.532569
+Epoch [17/30] - Loss: 0.534315
+Epoch [18/30] - Loss: 0.529644
+Epoch [19/30] - Loss: 0.528983
+Epoch [20/30] - Loss: 0.527783
+Epoch [21/30] - Loss: 0.526096
+Epoch [22/30] - Loss: 0.525171
+Epoch [23/30] - Loss: 0.525856
+Epoch [24/30] - Loss: 0.524533
+Epoch [25/30] - Loss: 0.525530
+Epoch [26/30] - Loss: 0.522087
+Epoch [27/30] - Loss: 0.522553
+Epoch [28/30] - Loss: 0.520376
+Epoch [29/30] - Loss: 0.522533
+Epoch [30/30] - Loss: 0.521509
+
+--------------------------------------------------
+Results for DATA_REUPLOADING (8 Qubits, Latent: PCA):
+  Execution Time: 61.70s
+  Accuracy:       78.26%
+  ROC-AUC:        0.7666
+  Precision:      0.8024
+  Recall:         0.9220
+  F1-Score:       0.8580
+--------------------------------------------------
+
+
+==================================================
+Training VQC | Qubits: 8 | Latent: PCA
+==================================================
+Epoch [01/30] - Loss: 0.657821
+Epoch [02/30] - Loss: 0.615559
+Epoch [03/30] - Loss: 0.601247
+Epoch [04/30] - Loss: 0.591024
+Epoch [05/30] - Loss: 0.583259
+Epoch [06/30] - Loss: 0.575447
+Epoch [07/30] - Loss: 0.571731
+Epoch [08/30] - Loss: 0.567261
+Epoch [09/30] - Loss: 0.566186
+Epoch [10/30] - Loss: 0.560206
+Epoch [11/30] - Loss: 0.563564
+Epoch [12/30] - Loss: 0.560552
+Epoch [13/30] - Loss: 0.557424
+Epoch [14/30] - Loss: 0.555976
+Epoch [15/30] - Loss: 0.557041
+Epoch [16/30] - Loss: 0.556353
+Epoch [17/30] - Loss: 0.556332
+Epoch [18/30] - Loss: 0.554431
+Epoch [19/30] - Loss: 0.553506
+Epoch [20/30] - Loss: 0.551977
+Epoch [21/30] - Loss: 0.552590
+Epoch [22/30] - Loss: 0.550586
+Epoch [23/30] - Loss: 0.548021
+Epoch [24/30] - Loss: 0.548770
+Epoch [25/30] - Loss: 0.549786
+Epoch [26/30] - Loss: 0.548181
+Epoch [27/30] - Loss: 0.550731
+Epoch [28/30] - Loss: 0.547261
+Epoch [29/30] - Loss: 0.547027
+Epoch [30/30] - Loss: 0.545974
+
+--------------------------------------------------
+Results for VQC (8 Qubits, Latent: PCA):
+  Execution Time: 41.92s
+  Accuracy:       71.50%
+  ROC-AUC:        0.7200
+  Precision:      0.7143
+  Recall:         1.0000
+  F1-Score:       0.8333
+--------------------------------------------------
+
+============================================================
+✅ ALL QNN BENCHMARKS COMPLETED!
+Detailed epoch text logs saved to: logs/qnn_benchmark.txt
+Summary metrics CSV saved to:      logs/qnn_benchmark_results.csv
+============================================================
+
+    architecture  n_qubits latent_type  accuracy  roc_auc  precision   recall  f1_score  training_time_sec
+data_reuploading         4         cae  0.714976 0.624854   0.714286 1.000000  0.833333          28.400570
+             vqc         4         cae  0.712560 0.635650   0.712560 1.000000  0.832158          18.793998
+data_reuploading         4         pca  0.722222 0.756587   0.722772 0.989831  0.835479          28.307438
+             vqc         4         pca  0.724638 0.738242   0.722359 0.996610  0.837607          18.630914
+data_reuploading         8         cae  0.799517 0.767953   0.829193 0.905085  0.865478          61.817816
+             vqc         8         cae  0.719807 0.805156   0.722084 0.986441  0.833811          41.771949
+data_reuploading         8         pca  0.782609 0.766643   0.802360 0.922034  0.858044          61.701585
+             vqc         8         pca  0.714976 0.719954   0.714286 1.000000  0.833333          41.919812

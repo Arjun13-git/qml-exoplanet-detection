@@ -1,63 +1,85 @@
-import torch
-from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
+import torch
+from torch.utils.data import Dataset, DataLoader
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 class ExoplanetLightcurveDataset(Dataset):
-    def __init__(self, csv_file, augment=False):
+    def __init__(self, features, labels, augment=False):
         """
         Args:
-            csv_file (str): Path to the processed master_lightcurves.csv
-            augment (bool): Whether to apply data augmentation
+            features (np.ndarray): Scaled flux features [N, 200]
+            labels (np.ndarray): Binary labels [N]
+            augment (bool): Apply data augmentation (Train only!)
         """
-        self.data = pd.read_csv(csv_file)
-        
-        # Based on your extraction script: 
-        # Col 0: target_name, Col 1: label, Col 2 to 201: flux values
-        self.labels = self.data.iloc[:, 1].values
-        self.features = self.data.iloc[:, 2:].values
+        self.features = features
+        self.labels = labels
         self.augment = augment
 
     def __len__(self):
-        return len(self.data)
+        return len(self.features)
 
     def __getitem__(self, idx):
-        # Extract flux array as float32
-        flux = self.features[idx].astype(np.float32)
+        flux = self.features[idx].copy().astype(np.float32)
         label = int(self.labels[idx])
 
         if self.augment:
-            # 1. Gaussian Noise (std dev of 0.001 - adjust based on flux scaling)
+            # 1. Gaussian Noise
             noise = np.random.normal(0, 0.001, flux.shape)
-            flux = flux + noise
+            flux += noise
             
-            # 2. Random Roll (Shift the transit event by up to 10 points left/right)
+            # 2. Random Roll Shift (±10 points)
             shift = np.random.randint(-10, 11)
             flux = np.roll(flux, shift)
 
-        # Convert to PyTorch tensors
-        flux_tensor = torch.tensor(flux, dtype=torch.float32)
-        label_tensor = torch.tensor(label, dtype=torch.long)
+        return torch.tensor(flux, dtype=torch.float32), torch.tensor(label, dtype=torch.long)
 
-        return flux_tensor, label_tensor
 
-# --- Verification Block ---
-if __name__ == "__main__":
-    csv_path = 'data/processed/master_lightcurves.csv'
+def prepare_dataloaders(
+    csv_path='data/processed/master_lightcurves.csv',
+    batch_size=32,
+    feature_range=(0, np.pi)  # [0, pi] for Quantum Angle Encoding
+):
+    df = pd.read_csv(csv_path)
     
-    print("🚀 Initializing Dataset with Augmentation...")
-    dataset = ExoplanetLightcurveDataset(csv_file=csv_path, augment=True)
+    # Col 1: label, Col 2..201: flux_0 to flux_199
+    labels = df.iloc[:, 1].values
+    features = df.iloc[:, 2:].values
+
+    # 1. Stratified Train / Test (80/20)
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, labels, test_size=0.20, random_state=42, stratify=labels
+    )
     
-    print(f"Total samples loaded: {len(dataset)}")
-    
-    # Initialize DataLoader
-    batch_size = 16
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-    
-    # Fetch one batch
-    features, labels = next(iter(dataloader))
-    
-    print("\n✅ Verification Successful:")
-    print(f"Batch Features shape: {features.shape}")  # Expected: [16, 200]
-    print(f"Batch Labels shape:   {labels.shape}")    # Expected: [16]
-    print(f"First 5 labels:       {labels[:5].tolist()}")
+    # 2. Stratified Train / Val (80/10/10 final ratio)
+    X_train, X_val, y_train, y_val = train_test_split(
+        X_train, y_train, test_size=0.125, random_state=42, stratify=y_train
+    )
+
+    # 3. Fit Scaler ONLY on Training Set
+    scaler = MinMaxScaler(feature_range=feature_range)
+    X_train = scaler.fit_transform(X_train)
+    X_val = scaler.transform(X_val)
+    X_test = scaler.transform(X_test)
+
+    # 4. Create Datasets (Augment TRAIN only)
+    train_ds = ExoplanetLightcurveDataset(X_train, y_train, augment=True)
+    val_ds   = ExoplanetLightcurveDataset(X_val, y_val, augment=False)
+    test_ds  = ExoplanetLightcurveDataset(X_test, y_test, augment=False)
+
+    # 5. Build DataLoaders
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
+    val_loader   = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
+    test_loader  = DataLoader(test_ds, batch_size=batch_size, shuffle=False)
+
+    # Calculate class weight for BCE loss: count(neg) / count(pos)
+    pos_count = (y_train == 1).sum()
+    neg_count = (y_train == 0).sum()
+    pos_weight = torch.tensor([neg_count / pos_count], dtype=torch.float32)
+
+    print(f" Dataset Split Complete:")
+    print(f"   Train: {len(train_ds)} | Val: {len(val_ds)} | Test: {len(test_ds)}")
+    print(f"   Calculated pos_weight for BCE Loss: {pos_weight.item():.4f}")
+
+    return train_loader, val_loader, test_loader, scaler, pos_weight
