@@ -1,0 +1,40 @@
+2026-07-24 14:44:34,536 [INFO] Using device: cuda
+2026-07-24 14:44:35,558 [INFO] 🚀 Training iTransformer Baseline Model...
+2026-07-24 14:44:36,031 [INFO] Epoch 01/30 | Train Loss: 0.6140 | Val Loss: 0.6029
+2026-07-24 14:44:36,282 [INFO] Epoch 02/30 | Train Loss: 0.6056 | Val Loss: 0.6020
+2026-07-24 14:44:36,511 [INFO] Epoch 03/30 | Train Loss: 0.6073 | Val Loss: 0.6060
+2026-07-24 14:44:36,736 [INFO] Epoch 04/30 | Train Loss: 0.6040 | Val Loss: 0.6045
+2026-07-24 14:44:36,960 [INFO] Epoch 05/30 | Train Loss: 0.6071 | Val Loss: 0.6022
+2026-07-24 14:44:37,185 [INFO] Epoch 06/30 | Train Loss: 0.6055 | Val Loss: 0.6022
+2026-07-24 14:44:37,411 [INFO] Epoch 07/30 | Train Loss: 0.6021 | Val Loss: 0.6031
+2026-07-24 14:44:37,634 [INFO] Epoch 08/30 | Train Loss: 0.6043 | Val Loss: 0.6021
+2026-07-24 14:44:37,860 [INFO] Epoch 09/30 | Train Loss: 0.6036 | Val Loss: 0.6029
+2026-07-24 14:44:38,083 [INFO] Epoch 10/30 | Train Loss: 0.6057 | Val Loss: 0.6030
+2026-07-24 14:44:38,307 [INFO] Epoch 11/30 | Train Loss: 0.6020 | Val Loss: 0.6023
+2026-07-24 14:44:38,532 [INFO] Epoch 12/30 | Train Loss: 0.6037 | Val Loss: 0.6027
+2026-07-24 14:44:38,757 [INFO] Epoch 13/30 | Train Loss: 0.6040 | Val Loss: 0.6023
+2026-07-24 14:44:38,979 [INFO] Epoch 14/30 | Train Loss: 0.6013 | Val Loss: 0.6023
+2026-07-24 14:44:39,200 [INFO] Epoch 15/30 | Train Loss: 0.6018 | Val Loss: 0.6022
+2026-07-24 14:44:39,427 [INFO] Epoch 16/30 | Train Loss: 0.6027 | Val Loss: 0.6024
+2026-07-24 14:44:39,659 [INFO] Epoch 17/30 | Train Loss: 0.6037 | Val Loss: 0.6025
+2026-07-24 14:44:39,878 [INFO] Epoch 18/30 | Train Loss: 0.6009 | Val Loss: 0.6022
+2026-07-24 14:44:40,102 [INFO] Epoch 19/30 | Train Loss: 0.6016 | Val Loss: 0.6022
+2026-07-24 14:44:40,321 [INFO] Epoch 20/30 | Train Loss: 0.6016 | Val Loss: 0.6023
+2026-07-24 14:44:40,543 [INFO] Epoch 21/30 | Train Loss: 0.6014 | Val Loss: 0.6024
+2026-07-24 14:44:40,768 [INFO] Epoch 22/30 | Train Loss: 0.6017 | Val Loss: 0.6022
+2026-07-24 14:44:40,989 [INFO] Epoch 23/30 | Train Loss: 0.6035 | Val Loss: 0.6021
+2026-07-24 14:44:41,211 [INFO] Epoch 24/30 | Train Loss: 0.6025 | Val Loss: 0.6022
+2026-07-24 14:44:41,434 [INFO] Epoch 25/30 | Train Loss: 0.6053 | Val Loss: 0.6022
+2026-07-24 14:44:41,655 [INFO] Epoch 26/30 | Train Loss: 0.6007 | Val Loss: 0.6023
+2026-07-24 14:44:41,878 [INFO] Epoch 27/30 | Train Loss: 0.6034 | Val Loss: 0.6023
+2026-07-24 14:44:42,095 [INFO] Epoch 28/30 | Train Loss: 0.6000 | Val Loss: 0.6023
+2026-07-24 14:44:42,314 [INFO] Epoch 29/30 | Train Loss: 0.6038 | Val Loss: 0.6023
+2026-07-24 14:44:42,589 [INFO] Epoch 30/30 | Train Loss: 0.6009 | Val Loss: 0.6024
+2026-07-24 14:44:42,611 [INFO] ==== 🏆 FINAL iTransformer TEST RESULTS ====
+2026-07-24 14:44:42,611 [INFO] Accuracy:  71.26%
+2026-07-24 14:44:42,612 [INFO] Precision: 0.7126
+2026-07-24 14:44:42,612 [INFO] Recall:    1.0000
+2026-07-24 14:44:42,612 [INFO] F1-Score:  0.8322
+2026-07-24 14:44:42,612 [INFO] ROC-AUC:   0.4878
+2026-07-24 14:44:42,612 [INFO] 📝 Master TXT log updated: logs/classical_benchmark_summary.txt
+2026-07-24 14:44:42,612 [INFO] 📊 Master CSV log updated: logs/classical_benchmark_results.csv
