@@ -1,0 +1,54 @@
+# =====================================================================
+# Quantum Machine Learning Frameworks
+# =====================================================================
+pennylane==0.42.3[cite: 3]
+pennylane_lightning==0.42.0[cite: 3]
+pennylane_lightning_gpu==0.42.0[cite: 3]
+PennyLane-qiskit==0.36.0[cite: 3]
+qiskit==2.5.0[cite: 3]
+qiskit-aer==0.17.2[cite: 3]
+cuquantum==26.6.0[cite: 3]
+
+# =====================================================================
+# Deep Learning & GPU Frameworks
+# =====================================================================
+torch==2.13.0[cite: 3]
+torchvision==0.28.0[cite: 3]
+torchaudio==2.11.0[cite: 3]
+tensorflow==2.21.0[cite: 3]
+keras==3.12.3[cite: 3]
+einops==0.6.1[cite: 3]
+
+# =====================================================================
+# Scientific Computing & Data Processing
+# =====================================================================
+numpy==2.2.6[cite: 3]
+pandas==2.2.3[cite: 3]
+scipy==1.15.3[cite: 3]
+scikit-learn==1.7.2[cite: 3]
+
+# =====================================================================
+# Astronomical Data Processing
+# =====================================================================
+astropy==6.1.7[cite: 3]
+astroquery==0.4.11[cite: 3]
+lightkurve==2.6.0[cite: 3]
+pyerfa==2.0.1.5[cite: 3]
+
+# =====================================================================
+# Visualization & Utilities
+# =====================================================================
+matplotlib==3.10.9[cite: 3]
+seaborn>=0.12.2[cite: 3]
+tabulate==0.10.0[cite: 3]
+tqdm==4.68.4[cite: 3]
+
+# =====================================================================
+# Development Stack & API Extensions
+# =====================================================================
+fastapi==0.139.0[cite: 3]
+uvicorn==0.51.0[cite: 3]
+psycopg2-binary==2.9.12[cite: 3]
+tenseal==0.3.16[cite: 3]
+langchain==1.3.13[cite: 3]
+langflow==1.10.2[cite: 3]
