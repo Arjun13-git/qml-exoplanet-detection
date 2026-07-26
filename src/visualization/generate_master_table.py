@@ -1,70 +1,129 @@
 import os
-import glob
 import pandas as pd
 
-def consolidate_benchmarks():
+def find_column(df, candidates):
+    """Finds the first matching candidate column in df (case-insensitive & space-insensitive)."""
+    normalized_cols = {col.strip().lower(): col for col in df.columns}
+    for cand in candidates:
+        cand_norm = cand.strip().lower()
+        if cand_norm in normalized_cols:
+            return normalized_cols[cand_norm]
+    # Partial match fallback
+    for cand in candidates:
+        for norm_col, orig_col in normalized_cols.items():
+            if cand.lower() in norm_col:
+                return orig_col
+    return None
+
+def generate_reports():
     logs_dir = "logs"
     reports_dir = "reports"
     os.makedirs(reports_dir, exist_ok=True)
 
-    csv_files = [
-        "classical_benchmark_results.csv",
+    # ----------------------------------------------------
+    # 1. Classical Baseline Architectures Table
+    # ----------------------------------------------------
+    class_path = os.path.join(logs_dir, "classical_benchmark_results.csv")
+    if os.path.exists(class_path):
+        raw_c = pd.read_csv(class_path)
+        raw_c.columns = raw_c.columns.str.strip()
+
+        col_mappings = {
+            'Model Name': ['model_name', 'model', 'architecture', 'name'],
+            'Accuracy (%)': ['test_acc', 'accuracy', 'acc', 'test_accuracy'],
+            'Precision': ['precision', 'prec'],
+            'Recall': ['recall', 'rec'],
+            'F1-Score': ['f1_score', 'f1', 'f1-score'],
+            'ROC-AUC': ['roc_auc', 'auc', 'roc_auc_score'],
+            'Training Time (s)': ['training_time_sec', 'training_time', 'time_sec', 'time', 'execution_time_sec', 'runtime']
+        }
+
+        c_df = pd.DataFrame()
+        for out_name, candidate_list in col_mappings.items():
+            matched_col = find_column(raw_c, candidate_list)
+            if matched_col:
+                c_df[out_name] = raw_c[matched_col]
+
+        # Standardize fractional accuracy to percentage if needed
+        if 'Accuracy (%)' in c_df.columns and pd.api.types.is_numeric_dtype(c_df['Accuracy (%)']):
+            if c_df['Accuracy (%)'].max() <= 1.0:
+                c_df['Accuracy (%)'] = c_df['Accuracy (%)'] * 100
+    else:
+        c_df = pd.DataFrame()
+
+    # ----------------------------------------------------
+    # 2. Quantum Architectures Table
+    # ----------------------------------------------------
+    q_files = [
         "qnn_benchmark_results.csv",
         "qnn_benchmark_16q_results.csv",
         "qcnn_benchmark_results.csv",
         "res_qnn_benchmark_results.csv"
     ]
 
-    all_dfs = []
+    q_dfs = []
+    for qf in q_files:
+        qp = os.path.join(logs_dir, qf)
+        if os.path.exists(qp):
+            df = pd.read_csv(qp)
+            df.columns = df.columns.str.strip()
+            q_dfs.append(df)
 
-    for fname in csv_files:
-        fpath = os.path.join(logs_dir, fname)
-        if os.path.exists(fpath):
-            df = pd.read_csv(fpath)
-            all_dfs.append(df)
-            print(f"Loaded: {fpath}")
+    if q_dfs:
+        raw_q = pd.concat(q_dfs, ignore_index=True)
 
-    if not all_dfs:
-        print("No CSV log files found in logs/")
-        return
+        q_col_mappings = {
+            'Architecture': ['architecture', 'model', 'model_name'],
+            'Qubits': ['n_qubits', 'qubits', 'num_qubits'],
+            'Latent Type': ['latent_type', 'latent', 'dim_red'],
+            'Accuracy (%)': ['accuracy', 'acc', 'test_acc'],
+            'Precision': ['precision'],
+            'Recall': ['recall'],
+            'F1-Score': ['f1_score', 'f1'],
+            'ROC-AUC': ['roc_auc', 'auc'],
+            'Training Time (s)': ['training_time_sec', 'training_time', 'time_sec', 'execution_time_sec', 'time']
+        }
 
-    master_df = pd.concat(all_dfs, ignore_index=True)
+        q_df = pd.DataFrame()
+        for out_name, candidate_list in q_col_mappings.items():
+            matched_col = find_column(raw_q, candidate_list)
+            if matched_col:
+                q_df[out_name] = raw_q[matched_col]
 
-    # Standardize Column Names
-    time_col = [c for c in master_df.columns if "time" in c.lower()]
-    if time_col:
-        master_df.rename(columns={time_col[0]: "training_time_sec"}, inplace=True)
+        # Clean qubit counts
+        if 'Qubits' in q_df.columns:
+            q_df['Qubits'] = pd.to_numeric(q_df['Qubits'], errors='coerce').fillna(0).astype(int)
 
-    # Fill NaNs for non-quantum models
-    if "n_qubits" in master_df.columns:
-        master_df["n_qubits"] = master_df["n_qubits"].fillna("-")
-    if "latent_type" in master_df.columns:
-        master_df["latent_type"] = master_df["latent_type"].fillna("-")
+        # Convert accuracy fraction to percentage if needed
+        if 'Accuracy (%)' in q_df.columns and pd.api.types.is_numeric_dtype(q_df['Accuracy (%)']):
+            if q_df['Accuracy (%)'].max() <= 1.0:
+                q_df['Accuracy (%)'] = q_df['Accuracy (%)'] * 100
+    else:
+        q_df = pd.DataFrame()
 
-    # Save consolidated CSV
-    master_csv_path = os.path.join(logs_dir, "master_benchmark_results.csv")
-    master_df.to_csv(master_csv_path, index=False)
-    print(f"\n✅ Consolidated CSV saved to: {master_csv_path}")
-
-    # Build Markdown Report
+    # ----------------------------------------------------
+    # 3. Write Separate Markdown Sections
+    # ----------------------------------------------------
     md_path = os.path.join(reports_dir, "master_benchmark_summary.md")
     with open(md_path, "w") as f:
         f.write("# Master Model Benchmark Summary\n\n")
-        f.write("Consolidated comparison of all Classical, QNN, QCNN, and Res-QNN architectures.\n\n")
-        
+        f.write("Consolidated comparison of all Classical and Quantum architectures.\n\n")
+
         f.write("## 1. Classical Baseline Architectures\n\n")
-        classical_df = master_df[master_df["architecture"].str.contains("classical|1d_cnn|astronet|resnet|tcn|lstm|patchtst|timesnet|itransformer|ssm|mamba", case=False, na=False)]
-        if not classical_df.empty:
-            f.write(classical_df.to_markdown(index=False))
-            f.write("\n\n")
+        if not c_df.empty:
+            f.write(c_df.to_markdown(index=False, floatfmt=".4f"))
+        else:
+            f.write("_No classical benchmark results found._\n")
+
+        f.write("\n\n---\n\n")
 
         f.write("## 2. Quantum Architectures (QNN, QCNN, Res-QNN)\n\n")
-        quantum_df = master_df[~master_df.index.isin(classical_df.index)]
-        if not quantum_df.empty:
-            f.write(quantum_df.to_markdown(index=False))
-            f.write("\n\n")
+        if not q_df.empty:
+            f.write(q_df.to_markdown(index=False, floatfmt=".4f"))
+        else:
+            f.write("_No quantum benchmark results found._\n")
 
-    print(f"✅ Master Markdown Report saved to: {md_path}")
+    print(f"✅ Generated two isolated benchmark tables successfully at: {md_path}")
 
 if __name__ == "__main__":
-    consolidate_benchmarks()
+    generate_reports()
