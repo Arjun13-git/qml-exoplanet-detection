@@ -1,0 +1,196 @@
+
+==================================================
+Training 8-QUBIT QCNN | Latent: CAE
+==================================================
+PyTorch Execution Device:   cuda
+PennyLane Simulation Device: PennyLane lightning.gpu
+Epoch [01/30] - Loss: 0.651734
+Epoch [02/30] - Loss: 0.637783
+Epoch [03/30] - Loss: 0.632056
+Epoch [04/30] - Loss: 0.628631
+Epoch [05/30] - Loss: 0.625726
+Epoch [06/30] - Loss: 0.621374
+Epoch [07/30] - Loss: 0.619380
+Epoch [08/30] - Loss: 0.617600
+Epoch [09/30] - Loss: 0.618284
+Epoch [10/30] - Loss: 0.616507
+Epoch [11/30] - Loss: 0.615691
+Epoch [12/30] - Loss: 0.615892
+Epoch [13/30] - Loss: 0.614417
+Epoch [14/30] - Loss: 0.614771
+Epoch [15/30] - Loss: 0.614659
+Epoch [16/30] - Loss: 0.614535
+Epoch [17/30] - Loss: 0.614076
+Epoch [18/30] - Loss: 0.613511
+Epoch [19/30] - Loss: 0.613405
+Epoch [20/30] - Loss: 0.614149
+Epoch [21/30] - Loss: 0.612978
+Epoch [22/30] - Loss: 0.613356
+Epoch [23/30] - Loss: 0.613076
+Epoch [24/30] - Loss: 0.612926
+Epoch [25/30] - Loss: 0.612368
+Epoch [26/30] - Loss: 0.613363
+Epoch [27/30] - Loss: 0.612627
+Epoch [28/30] - Loss: 0.612230
+Epoch [29/30] - Loss: 0.613090
+Epoch [30/30] - Loss: 0.612970
+
+--------------------------------------------------
+Results for 8-QUBIT QCNN (Latent: CAE):
+  Execution Time: 2948.87s
+  Accuracy:       68.12%
+  ROC-AUC:        0.6417
+  Precision:      0.7063
+  Recall:         0.9458
+  F1-Score:       0.8087
+--------------------------------------------------
+
+==================================================
+Training 8-QUBIT QCNN | Latent: PCA
+==================================================
+PyTorch Execution Device:   cuda
+PennyLane Simulation Device: PennyLane lightning.gpu
+Epoch [01/30] - Loss: 0.640360
+Epoch [02/30] - Loss: 0.633469
+Epoch [03/30] - Loss: 0.630408
+Epoch [04/30] - Loss: 0.626869
+Epoch [05/30] - Loss: 0.627226
+Epoch [06/30] - Loss: 0.626849
+Epoch [07/30] - Loss: 0.625309
+Epoch [08/30] - Loss: 0.624763
+Epoch [09/30] - Loss: 0.625136
+Epoch [10/30] - Loss: 0.624366
+Epoch [11/30] - Loss: 0.624541
+Epoch [12/30] - Loss: 0.623950
+Epoch [13/30] - Loss: 0.623457
+Epoch [14/30] - Loss: 0.623470
+Epoch [15/30] - Loss: 0.623187
+Epoch [16/30] - Loss: 0.624100
+Epoch [17/30] - Loss: 0.622354
+Epoch [18/30] - Loss: 0.621833
+Epoch [19/30] - Loss: 0.621163
+Epoch [20/30] - Loss: 0.620706
+Epoch [21/30] - Loss: 0.619791
+Epoch [22/30] - Loss: 0.620281
+Epoch [23/30] - Loss: 0.620320
+Epoch [24/30] - Loss: 0.619449
+Epoch [25/30] - Loss: 0.620133
+Epoch [26/30] - Loss: 0.619297
+Epoch [27/30] - Loss: 0.619234
+Epoch [28/30] - Loss: 0.619064
+Epoch [29/30] - Loss: 0.619184
+Epoch [30/30] - Loss: 0.618627
+
+--------------------------------------------------
+Results for 8-QUBIT QCNN (Latent: PCA):
+  Execution Time: 31705.00s
+  Accuracy:       68.84%
+  ROC-AUC:        0.4201
+  Precision:      0.7075
+  Recall:         0.9593
+  F1-Score:       0.8144
+--------------------------------------------------
+
+==================================================
+Training 16-QUBIT QCNN | Latent: CAE
+==================================================
+PyTorch Execution Device:   cuda
+PennyLane Simulation Device: PennyLane lightning.gpu
+Epoch [01/30] - Loss: 0.679111
+Epoch [02/30] - Loss: 0.650197
+Epoch [03/30] - Loss: 0.635194
+Epoch [04/30] - Loss: 0.629940
+Epoch [05/30] - Loss: 0.624735
+Epoch [06/30] - Loss: 0.618496
+Epoch [07/30] - Loss: 0.615949
+Epoch [08/30] - Loss: 0.615372
+Epoch [09/30] - Loss: 0.614400
+Epoch [10/30] - Loss: 0.615214
+Epoch [11/30] - Loss: 0.614049
+Epoch [12/30] - Loss: 0.612334
+Epoch [13/30] - Loss: 0.612653
+Epoch [14/30] - Loss: 0.612124
+Epoch [15/30] - Loss: 0.611123
+Epoch [16/30] - Loss: 0.610490
+Epoch [17/30] - Loss: 0.610159
+Epoch [18/30] - Loss: 0.609434
+Epoch [19/30] - Loss: 0.609202
+Epoch [20/30] - Loss: 0.609114
+Epoch [21/30] - Loss: 0.607947
+Epoch [22/30] - Loss: 0.607453
+Epoch [23/30] - Loss: 0.607765
+Epoch [24/30] - Loss: 0.607369
+Epoch [25/30] - Loss: 0.607185
+Epoch [26/30] - Loss: 0.607290
+Epoch [27/30] - Loss: 0.607272
+Epoch [28/30] - Loss: 0.607325
+Epoch [29/30] - Loss: 0.606851
+Epoch [30/30] - Loss: 0.607612
+
+--------------------------------------------------
+Results for 16-QUBIT QCNN (Latent: CAE):
+  Execution Time: 36369.51s
+  Accuracy:       71.01%
+  ROC-AUC:        0.5423
+  Precision:      0.7226
+  Recall:         0.9627
+  F1-Score:       0.8256
+--------------------------------------------------
+
+==================================================
+Training 16-QUBIT QCNN | Latent: PCA
+==================================================
+PyTorch Execution Device:   cuda
+PennyLane Simulation Device: PennyLane lightning.gpu
+Epoch [01/30] - Loss: 0.649020
+Epoch [02/30] - Loss: 0.634724
+Epoch [03/30] - Loss: 0.628301
+Epoch [04/30] - Loss: 0.626572
+Epoch [05/30] - Loss: 0.625080
+Epoch [06/30] - Loss: 0.623375
+Epoch [07/30] - Loss: 0.625508
+Epoch [08/30] - Loss: 0.621692
+Epoch [09/30] - Loss: 0.620343
+Epoch [10/30] - Loss: 0.619476
+Epoch [11/30] - Loss: 0.619789
+Epoch [12/30] - Loss: 0.619749
+Epoch [13/30] - Loss: 0.618900
+Epoch [14/30] - Loss: 0.618488
+Epoch [15/30] - Loss: 0.618144
+Epoch [16/30] - Loss: 0.618699
+Epoch [17/30] - Loss: 0.616747
+Epoch [18/30] - Loss: 0.616485
+Epoch [19/30] - Loss: 0.616148
+Epoch [20/30] - Loss: 0.614587
+Epoch [21/30] - Loss: 0.611950
+Epoch [22/30] - Loss: 0.610153
+Epoch [23/30] - Loss: 0.609190
+Epoch [24/30] - Loss: 0.609196
+Epoch [25/30] - Loss: 0.609226
+Epoch [26/30] - Loss: 0.608895
+Epoch [27/30] - Loss: 0.608682
+Epoch [28/30] - Loss: 0.608169
+Epoch [29/30] - Loss: 0.608324
+Epoch [30/30] - Loss: 0.608049
+
+--------------------------------------------------
+Results for 16-QUBIT QCNN (Latent: PCA):
+  Execution Time: 7590.03s
+  Accuracy:       68.60%
+  ROC-AUC:        0.4350
+  Precision:      0.7110
+  Recall:         0.9424
+  F1-Score:       0.8105
+--------------------------------------------------
+
+============================================================
+✅ ALL QCNN BENCHMARKS COMPLETED!
+Detailed Epoch Logs saved to: logs/qcnn_benchmark.txt
+Summary Metrics CSV saved to: logs/qcnn_benchmark_results.csv
+============================================================
+
+   architecture  n_qubits latent_type  accuracy   roc_auc  precision    recall  f1_score  training_time_sec
+0         qcnn         8         cae  0.681159  0.641703   0.706329  0.945763  0.808696        2948.871858
+1         qcnn         8         pca  0.688406  0.420111   0.707500  0.959322  0.814388       31705.000022
+2         qcnn        16         cae  0.710145  0.542316   0.722646  0.962712  0.825581       36369.514815
+3         qcnn        16         pca  0.685990  0.435009   0.710997  0.942373  0.810496        7590.031207
