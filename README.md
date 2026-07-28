@@ -159,7 +159,7 @@ Raw stellar photometric lightcurves are retrieved from the NASA Exoplanet Archiv
 To encode continuous high-dimensional temporal features into subatomic Hilbert space states across
 
 \[
-N \in \{4, 8, 16\}
+{4, 8, 16\}
 \]
 
 qubits, two latent reduction techniques are benchmarked:
