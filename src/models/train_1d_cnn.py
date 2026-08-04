@@ -13,12 +13,15 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from src.data.dataset import prepare_dataloaders
 
-# 1. Setup File Paths
+# 1. Setup Directories & File Paths
 os.makedirs("logs", exist_ok=True)
+os.makedirs("models/saved", exist_ok=True)
+
 run_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 run_txt_log = f"logs/1d_cnn_train_{run_timestamp}.txt"
 master_txt_summary = "logs/classical_benchmark_summary.txt"
 master_csv_summary = "logs/classical_benchmark_results.csv"
+model_save_path = "models/saved/1d_cnn_weights.pth"
 
 # 2. Setup Dual Logging (Console + Individual .txt File)
 logging.basicConfig(
@@ -113,16 +116,20 @@ def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logging.info(f"Using device: {device}")
 
-    csv_path = '/home/arjunshenoy13/qml-exoplanet-detection/data/processed/master_lightcurves.csv'
+    csv_path = 'data/processed/master_lightcurves.csv'
+    if not os.path.exists(csv_path):
+        csv_path = '/home/arjunshenoy13/qml-exoplanet-detection/data/processed/master_lightcurves.csv'
+
     train_loader, val_loader, test_loader, _, _ = prepare_dataloaders(csv_path=csv_path)
 
     model = Conv1DBaseline().to(device)
-    criterion = nn.BCEWithLogitsLoss()  # Standard BCE Loss for balanced probability logits
+    criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=3, factor=0.5)
 
     epochs = 30
     start_time = time.time()
+    best_val_loss = float('inf')
 
     logging.info("🚀 Training 1D CNN Baseline Model...")
 
@@ -151,9 +158,20 @@ def train():
         val_loss /= len(val_loader.dataset)
         scheduler.step(val_loss)
 
-        logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+        # Save Checkpoint if Validation Loss Improved
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            torch.save(model.state_dict(), model_save_path)
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} (💾 Model Saved)")
+        else:
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
     total_train_time = time.time() - start_time
+
+    # Load best checkpoint for testing
+    if os.path.exists(model_save_path):
+        model.load_state_dict(torch.load(model_save_path, map_location=device))
+        logging.info(f"📦 Loaded best model weights from {model_save_path}")
 
     # Testing Evaluation
     model.eval()
