@@ -237,7 +237,7 @@ def main():
 
     if summary:
         print("\n" + "="*60)
-        print("🎉 4-QUBIT QNN EVALUATION SUITE COMPLETE")
+        print(f"🎉 {args.qubits}-QUBIT QNN EVALUATION SUITE COMPLETE")
         print("="*60)
         for s in summary:
             print(f"• {s['model']:<25} | AUC: {s['auc']:.4f} | Optimal Thresh: {s['best_thresh']:.4f}")
