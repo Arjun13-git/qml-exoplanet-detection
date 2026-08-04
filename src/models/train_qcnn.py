@@ -131,7 +131,7 @@ class QCNNModel(nn.Module):
 # ----------------------------------------------------------------------
 # 4. Training & Benchmark Runner
 # ----------------------------------------------------------------------
-def run_qcnn_experiment(n_qubits, latent_type, epochs=30, batch_size=32, lr=0.01):
+def run_qcnn_experiment(n_qubits, latent_type, epochs=30, batch_size=32, lr=0.01, weights_dir="models/saved"):
     print(f"\n{'='*50}")
     print(f"Training {n_qubits}-QUBIT QCNN | Latent: {latent_type.upper()}")
     print(f"{'='*50}")
@@ -179,6 +179,12 @@ def run_qcnn_experiment(n_qubits, latent_type, epochs=30, batch_size=32, lr=0.01
         print(f"Epoch [{epoch:02d}/{epochs:02d}] - Loss: {epoch_loss:.6f}")
 
     training_time = time.time() - start_time
+
+    # Save Model Checkpoint
+    os.makedirs(weights_dir, exist_ok=True)
+    weights_path = os.path.join(weights_dir, f"qcnn_{latent_type}_{n_qubits}q_weights.pth")
+    torch.save(model.state_dict(), weights_path)
+    print(f"💾 Saved Model Checkpoint: {weights_path}")
 
     # Evaluation
     model.eval()
@@ -231,13 +237,14 @@ def run_qcnn_experiment(n_qubits, latent_type, epochs=30, batch_size=32, lr=0.01
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
     os.makedirs("logs", exist_ok=True)
+    os.makedirs("models/saved", exist_ok=True)
 
     txt_log_path = "logs/qcnn_benchmark.txt"
     sys.stdout = DualLogger(txt_log_path)
 
     results = []
 
-    qubit_configs = [8, 16]
+    qubit_configs = [4, 8]
     latent_sources = ["cae", "pca"]
 
     for n_q in qubit_configs:
