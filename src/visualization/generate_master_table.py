@@ -25,29 +25,37 @@ def generate_reports():
     # ----------------------------------------------------
     class_path = os.path.join(logs_dir, "classical_benchmark_results.csv")
     if os.path.exists(class_path):
-        raw_c = pd.read_csv(class_path)
-        raw_c.columns = raw_c.columns.str.strip()
+        try:
+            raw_c = pd.read_csv(class_path, on_bad_lines='skip', engine='python')
+        except Exception as e:
+            print(f"⚠️ Warning reading {class_path}: {e}")
+            raw_c = pd.DataFrame()
 
-        col_mappings = {
-            'Model Name': ['model_name', 'model', 'architecture', 'name'],
-            'Accuracy (%)': ['test_acc', 'accuracy', 'acc', 'test_accuracy'],
-            'Precision': ['precision', 'prec'],
-            'Recall': ['recall', 'rec'],
-            'F1-Score': ['f1_score', 'f1', 'f1-score'],
-            'ROC-AUC': ['roc_auc', 'auc', 'roc_auc_score'],
-            'Training Time (s)': ['training_time_sec', 'training_time', 'time_sec', 'time', 'execution_time_sec', 'runtime']
-        }
+        if not raw_c.empty:
+            raw_c.columns = raw_c.columns.str.strip()
 
-        c_df = pd.DataFrame()
-        for out_name, candidate_list in col_mappings.items():
-            matched_col = find_column(raw_c, candidate_list)
-            if matched_col:
-                c_df[out_name] = raw_c[matched_col]
+            col_mappings = {
+                'Model Name': ['model_name', 'model', 'architecture', 'name'],
+                'Accuracy (%)': ['test_acc', 'accuracy', 'acc', 'test_accuracy'],
+                'Precision': ['precision', 'prec'],
+                'Recall': ['recall', 'rec'],
+                'F1-Score': ['f1_score', 'f1', 'f1-score'],
+                'ROC-AUC': ['roc_auc', 'auc', 'roc_auc_score'],
+                'Training Time (s)': ['training_time_sec', 'training_time', 'time_sec', 'time', 'execution_time_sec', 'runtime']
+            }
 
-        # Standardize fractional accuracy to percentage if needed
-        if 'Accuracy (%)' in c_df.columns and pd.api.types.is_numeric_dtype(c_df['Accuracy (%)']):
-            if c_df['Accuracy (%)'].max() <= 1.0:
-                c_df['Accuracy (%)'] = c_df['Accuracy (%)'] * 100
+            c_df = pd.DataFrame()
+            for out_name, candidate_list in col_mappings.items():
+                matched_col = find_column(raw_c, candidate_list)
+                if matched_col:
+                    c_df[out_name] = raw_c[matched_col]
+
+            # Standardize fractional accuracy to percentage if needed
+            if 'Accuracy (%)' in c_df.columns and pd.api.types.is_numeric_dtype(c_df['Accuracy (%)']):
+                if c_df['Accuracy (%)'].max() <= 1.0:
+                    c_df['Accuracy (%)'] = c_df['Accuracy (%)'] * 100
+        else:
+            c_df = pd.DataFrame()
     else:
         c_df = pd.DataFrame()
 
@@ -65,9 +73,12 @@ def generate_reports():
     for qf in q_files:
         qp = os.path.join(logs_dir, qf)
         if os.path.exists(qp):
-            df = pd.read_csv(qp)
-            df.columns = df.columns.str.strip()
-            q_dfs.append(df)
+            try:
+                df = pd.read_csv(qp, on_bad_lines='skip', engine='python')
+                df.columns = df.columns.str.strip()
+                q_dfs.append(df)
+            except Exception as e:
+                print(f"⚠️ Warning reading {qp}: {e}")
 
     if q_dfs:
         raw_q = pd.concat(q_dfs, ignore_index=True)
