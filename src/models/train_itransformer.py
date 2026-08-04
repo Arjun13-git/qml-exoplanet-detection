@@ -15,10 +15,13 @@ from src.data.dataset import prepare_dataloaders
 
 # 1. Setup File Paths
 os.makedirs("logs", exist_ok=True)
+os.makedirs("models/saved", exist_ok=True)
+
 run_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 run_txt_log = f"logs/itransformer_train_{run_timestamp}.txt"
 master_txt_summary = "logs/classical_benchmark_summary.txt"
 master_csv_summary = "logs/classical_benchmark_results.csv"
+model_save_path = "models/saved/itransformer_weights.pth"
 
 # 2. Setup Dual Logging
 logging.basicConfig(
@@ -73,6 +76,7 @@ class iTransformer(nn.Module):
 def save_benchmark_logs(model_name, metrics):
     """Appends iTransformer metrics to master summary TXT and CSV files."""
     
+    # A. Append to Master TXT Summary
     with open(master_txt_summary, "a") as f:
         f.write("=" * 65 + "\n")
         f.write(f"MODEL: {model_name} | TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
@@ -86,8 +90,10 @@ def save_benchmark_logs(model_name, metrics):
         f.write(f"Val Loss:       {metrics['val_loss']:.4f}\n")
         f.write(f"Test Loss:      {metrics['test_loss']:.4f}\n")
         f.write(f"Train Time:     {metrics['train_time']:.2f} seconds\n")
+        f.write(f"Weights Saved:  {model_save_path}\n")
         f.write("=" * 65 + "\n\n")
 
+    # B. Append to Master CSV Matrix
     file_exists = os.path.exists(master_csv_summary)
     headers = [
         "timestamp", "model_name", "test_acc", "precision", 
@@ -112,8 +118,9 @@ def save_benchmark_logs(model_name, metrics):
             f"{metrics['train_time']:.2f}"
         ])
         
-    logging.info(f"📝 Master TXT log updated: {master_txt_summary}")
-    logging.info(f"📊 Master CSV log updated: {master_csv_summary}")
+    logging.info(f"📝 Master TXT log updated : {master_txt_summary}")
+    logging.info(f"📊 Master CSV log updated : {master_csv_summary}")
+    logging.info(f"💾 Checkpoint Saved To    : {model_save_path}")
 
 def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -128,6 +135,7 @@ def train():
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=3, factor=0.5)
 
     epochs = 30
+    best_val_loss = float('inf')
     start_time = time.time()
 
     logging.info("🚀 Training iTransformer Baseline Model...")
@@ -158,9 +166,20 @@ def train():
         val_loss /= len(val_loader.dataset)
         scheduler.step(val_loss)
 
-        logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+        # Checkpoint Saving: Save model state when validation loss improves
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            torch.save(model.state_dict(), model_save_path)
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} 🔥 (Saved Checkpoint)")
+        else:
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
     total_train_time = time.time() - start_time
+
+    # Load best checkpoint for testing
+    if os.path.exists(model_save_path):
+        model.load_state_dict(torch.load(model_save_path, map_location=device))
+        logging.info(f"Loaded best weights from {model_save_path} for evaluation.")
 
     # Testing Evaluation
     model.eval()

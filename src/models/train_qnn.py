@@ -1,5 +1,9 @@
 import os
 import time
+import csv
+import logging
+from datetime import datetime
+import sys
 import numpy as np
 import pandas as pd
 import torch
@@ -14,17 +18,23 @@ from sklearn.metrics import (
     f1_score
 )
 
+# ---------------------------------------------------------------------------
+# 1. SETUP FILE PATHS & DIRECTORIES
+# ---------------------------------------------------------------------------
+os.makedirs("logs", exist_ok=True)
+os.makedirs("models/saved", exist_ok=True)
 
-# --- 1. Dual Logger Helper (Console + Text File) ---
 LOG_FILE = "logs/qnn_benchmark.txt"
 
 def log_msg(msg):
     print(msg, flush=True)
-    with open(LOG_FILE, "a") as f:
+    with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(msg + "\n")
 
 
-# --- 2. PennyLane Quantum Circuit Architectures ---
+# ---------------------------------------------------------------------------
+# 2. PENNYLANE QUANTUM CIRCUIT ARCHITECTURES
+# ---------------------------------------------------------------------------
 def create_qnn_circuit(n_qubits, n_layers, architecture="data_reuploading"):
     dev = qml.device("default.qubit", wires=n_qubits)
 
@@ -66,7 +76,9 @@ def create_qnn_circuit(n_qubits, n_layers, architecture="data_reuploading"):
     return circuit
 
 
-# --- 3. PyTorch Wrapper for PennyLane QNode ---
+# ---------------------------------------------------------------------------
+# 3. PYTORCH WRAPPER FOR PENNYLANE QNODE
+# ---------------------------------------------------------------------------
 class QuantumClassifier(nn.Module):
     def __init__(self, n_qubits, n_layers=3, architecture="data_reuploading"):
         super().__init__()
@@ -89,7 +101,9 @@ class QuantumClassifier(nn.Module):
         return logits.squeeze(-1)
 
 
-# --- 4. Training & Evaluation Helper ---
+# ---------------------------------------------------------------------------
+# 4. TRAINING & EVALUATION PIPELINE WITH CHECKPOINTING
+# ---------------------------------------------------------------------------
 def train_eval_qnn(n_qubits, arch, latent_type, epochs=30, lr=0.01, batch_size=32):
     data_dir = "data/processed/latent"
     
@@ -108,13 +122,17 @@ def train_eval_qnn(n_qubits, arch, latent_type, epochs=30, lr=0.01, batch_size=3
     criterion = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+    model_save_path = f"models/saved/qnn_{arch}_{latent_type}_{n_qubits}q_weights.pth"
+
     log_msg(f"\n==================================================")
-    log_msg(f"Training {arch.upper()} | Qubits: {n_qubits} | Latent: {latent_type.upper()}")
+    log_msg(f"🚀 Training {arch.upper()} | Qubits: {n_qubits} | Latent: {latent_type.upper()}")
+    log_msg(f"💾 Target Weights: {model_save_path}")
     log_msg(f"==================================================")
     
+    best_loss = float("inf")
     start_time = time.time()
 
-    # Train for exactly 30 epochs, printing every single epoch
+    # Train for exactly 30 epochs, saving checkpoints on improvement
     for epoch in range(1, epochs + 1):
         model.train()
         running_loss = 0.0
@@ -127,9 +145,20 @@ def train_eval_qnn(n_qubits, arch, latent_type, epochs=30, lr=0.01, batch_size=3
             running_loss += loss.item() * bx.size(0)
 
         epoch_loss = running_loss / len(train_ds)
-        log_msg(f"Epoch [{epoch:02d}/{epochs:02d}] - Loss: {epoch_loss:.6f}")
+        
+        if epoch_loss < best_loss:
+            best_loss = epoch_loss
+            torch.save(model.state_dict(), model_save_path)
+            log_msg(f"Epoch [{epoch:02d}/{epochs:02d}] - Loss: {epoch_loss:.6f} 🔥 (Saved Checkpoint)")
+        else:
+            log_msg(f"Epoch [{epoch:02d}/{epochs:02d}] - Loss: {epoch_loss:.6f}")
 
     elapsed = time.time() - start_time
+
+    # Load best checkpoint before testing evaluation
+    if os.path.exists(model_save_path):
+        model.load_state_dict(torch.load(model_save_path))
+        log_msg(f"Loaded optimal weights from {model_save_path} for evaluation.")
 
     # Evaluation
     model.eval()
@@ -150,7 +179,7 @@ def train_eval_qnn(n_qubits, arch, latent_type, epochs=30, lr=0.01, batch_size=3
     f1 = f1_score(y_test, all_preds, zero_division=0)
 
     log_msg(f"\n--------------------------------------------------")
-    log_msg(f"Results for {arch.upper()} ({n_qubits} Qubits, Latent: {latent_type.upper()}):")
+    log_msg(f"🏆 Results for {arch.upper()} ({n_qubits} Qubits, Latent: {latent_type.upper()}):")
     log_msg(f"  Execution Time: {elapsed:.2f}s")
     log_msg(f"  Accuracy:       {acc*100:.2f}%")
     log_msg(f"  ROC-AUC:        {auc:.4f}")
@@ -168,16 +197,19 @@ def train_eval_qnn(n_qubits, arch, latent_type, epochs=30, lr=0.01, batch_size=3
         "precision": prec,
         "recall": rec,
         "f1_score": f1,
-        "training_time_sec": elapsed
+        "training_time_sec": elapsed,
+        "weights_path": model_save_path
     }
 
 
-# --- 5. Main Benchmark Suite ---
+# ---------------------------------------------------------------------------
+# 5. MAIN BENCHMARK SUITE
+# ---------------------------------------------------------------------------
 def main():
     os.makedirs("logs", exist_ok=True)
     
-    # Initialize / overwrite previous text log header
-    with open(LOG_FILE, "w") as f:
+    # Initialize log header
+    with open(LOG_FILE, "w", encoding="utf-8") as f:
         f.write("=== QNN BENCHMARK RUN LOG ===\n")
         f.write(f"Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
@@ -205,11 +237,11 @@ def main():
     csv_path = "logs/qnn_benchmark_results.csv"
     summary_df.to_csv(csv_path, index=False)
 
-    log_msg("="*60)
-    log_msg("✅ ALL QNN BENCHMARKS COMPLETED!")
+    log_msg("=" * 60)
+    log_msg("🎉 ALL QNN BENCHMARKS COMPLETED!")
     log_msg(f"Detailed epoch text logs saved to: {LOG_FILE}")
     log_msg(f"Summary metrics CSV saved to:      {csv_path}")
-    log_msg("="*60)
+    log_msg("=" * 60)
     log_msg("\n" + summary_df.to_string(index=False))
 
 

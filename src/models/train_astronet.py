@@ -5,6 +5,7 @@ import csv
 from datetime import datetime
 import sys
 import torch
+from src.models.astronet import AstroNet1D
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score
@@ -15,10 +16,13 @@ from src.data.dataset import prepare_dataloaders
 
 # 1. Setup File Paths
 os.makedirs("logs", exist_ok=True)
+os.makedirs("models/saved", exist_ok=True)
+
 run_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 run_txt_log = f"logs/astronet_train_{run_timestamp}.txt"
 master_txt_summary = "logs/classical_benchmark_summary.txt"
 master_csv_summary = "logs/classical_benchmark_results.csv"
+model_save_path = "models/saved/astronet_weights.pth"
 
 # 2. Setup Dual Logging
 logging.basicConfig(
@@ -30,58 +34,58 @@ logging.basicConfig(
     ]
 )
 
-# 3. AstroNet Dual-View Architecture
-class AstroNet1D(nn.Module):
-    def __init__(self, input_len=200):
-        super().__init__()
-        # Branch 1: Wide View (Broader stellar context)
-        self.wide_branch = nn.Sequential(
-            nn.Conv1d(1, 32, kernel_size=9, stride=1, padding=4),
-            nn.BatchNorm1d(32),
-            nn.ReLU(),
-            nn.MaxPool1d(2),
-            nn.Conv1d(32, 64, kernel_size=7, stride=1, padding=3),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.MaxPool1d(2),
-            nn.AdaptiveAvgPool1d(1)
-        )
+# # 3. AstroNet Dual-View Architecture
+# class AstroNet1D(nn.Module):
+#     def __init__(self, input_len=200):
+#         super().__init__()
+#         # Branch 1: Wide View (Broader stellar context)
+#         self.wide_branch = nn.Sequential(
+#             nn.Conv1d(1, 32, kernel_size=9, stride=1, padding=4),
+#             nn.BatchNorm1d(32),
+#             nn.ReLU(),
+#             nn.MaxPool1d(2),
+#             nn.Conv1d(32, 64, kernel_size=7, stride=1, padding=3),
+#             nn.BatchNorm1d(64),
+#             nn.ReLU(),
+#             nn.MaxPool1d(2),
+#             nn.AdaptiveAvgPool1d(1)
+#         )
         
-        # Branch 2: Narrow View (Fine transit details)
-        self.narrow_branch = nn.Sequential(
-            nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(32),
-            nn.ReLU(),
-            nn.MaxPool1d(2),
-            nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.MaxPool1d(2),
-            nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm1d(128),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool1d(1)
-        )
+#         # Branch 2: Narrow View (Fine transit details)
+#         self.narrow_branch = nn.Sequential(
+#             nn.Conv1d(1, 32, kernel_size=3, stride=1, padding=1),
+#             nn.BatchNorm1d(32),
+#             nn.ReLU(),
+#             nn.MaxPool1d(2),
+#             nn.Conv1d(32, 64, kernel_size=3, stride=1, padding=1),
+#             nn.BatchNorm1d(64),
+#             nn.ReLU(),
+#             nn.MaxPool1d(2),
+#             nn.Conv1d(64, 128, kernel_size=3, stride=1, padding=1),
+#             nn.BatchNorm1d(128),
+#             nn.ReLU(),
+#             nn.AdaptiveAvgPool1d(1)
+#         )
         
-        # Combined Classification FC Head
-        self.fc = nn.Sequential(
-            nn.Linear(64 + 128, 64),
-            nn.ReLU(),
-            nn.Dropout(0.4),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 1)
-        )
+#         # Combined Classification FC Head
+#         self.fc = nn.Sequential(
+#             nn.Linear(64 + 128, 64),
+#             nn.ReLU(),
+#             nn.Dropout(0.4),
+#             nn.Linear(64, 32),
+#             nn.ReLU(),
+#             nn.Linear(32, 1)
+#         )
 
-    def forward(self, x):
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
+#     def forward(self, x):
+#         if x.dim() == 2:
+#             x = x.unsqueeze(1)
         
-        out_wide = self.wide_branch(x).squeeze(-1)
-        out_narrow = self.narrow_branch(x).squeeze(-1)
+#         out_wide = self.wide_branch(x).squeeze(-1)
+#         out_narrow = self.narrow_branch(x).squeeze(-1)
         
-        combined = torch.cat([out_wide, out_narrow], dim=1)
-        return self.fc(combined)
+#         combined = torch.cat([out_wide, out_narrow], dim=1)
+#         return self.fc(combined)
 
 def save_benchmark_logs(model_name, metrics):
     """Appends AstroNet metrics to master summary TXT and CSV files."""
@@ -100,6 +104,7 @@ def save_benchmark_logs(model_name, metrics):
         f.write(f"Val Loss:       {metrics['val_loss']:.4f}\n")
         f.write(f"Test Loss:      {metrics['test_loss']:.4f}\n")
         f.write(f"Train Time:     {metrics['train_time']:.2f} seconds\n")
+        f.write(f"Weights Saved:  {model_save_path}\n")
         f.write("=" * 65 + "\n\n")
 
     # B. Append to Master CSV Matrix
@@ -127,8 +132,9 @@ def save_benchmark_logs(model_name, metrics):
             f"{metrics['train_time']:.2f}"
         ])
         
-    logging.info(f"📝 Master TXT log updated: {master_txt_summary}")
-    logging.info(f"📊 Master CSV log updated: {master_csv_summary}")
+    logging.info(f"📝 Master TXT log updated : {master_txt_summary}")
+    logging.info(f"📊 Master CSV log updated : {master_csv_summary}")
+    logging.info(f"💾 Checkpoint Saved To    : {model_save_path}")
 
 def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -143,6 +149,7 @@ def train():
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=3, factor=0.5)
 
     epochs = 30
+    best_val_loss = float('inf')
     start_time = time.time()
 
     logging.info("🚀 Training AstroNet Model...")
@@ -172,9 +179,20 @@ def train():
         val_loss /= len(val_loader.dataset)
         scheduler.step(val_loss)
 
-        logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
+        # Checkpoint Saving: Save model state when validation loss improves
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            torch.save(model.state_dict(), model_save_path)
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} 🔥 (Saved Checkpoint)")
+        else:
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
     total_train_time = time.time() - start_time
+
+    # Load best checkpoint for testing
+    if os.path.exists(model_save_path):
+        model.load_state_dict(torch.load(model_save_path, map_location=device))
+        logging.info(f"Loaded best weights from {model_save_path} for evaluation.")
 
     # Testing Evaluation
     model.eval()

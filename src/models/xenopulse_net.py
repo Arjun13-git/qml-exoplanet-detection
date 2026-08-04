@@ -1,19 +1,43 @@
 import os
 import time
+import logging
 import csv
+from datetime import datetime
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
-import pandas as pd
-import numpy as np
-from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score
 
-# =====================================================================
-# 1. ARCHITECTURE DEFINITION
-# =====================================================================
+# Ensure root directory is in python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from src.data.dataset import prepare_dataloaders
+
+# ---------------------------------------------------------------------------
+# 1. SETUP FILE PATHS & DUAL LOGGING
+# ---------------------------------------------------------------------------
+os.makedirs("logs", exist_ok=True)
+os.makedirs("models/saved", exist_ok=True)
+
+run_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+run_txt_log = f"logs/xenopulse_net_train_{run_timestamp}.txt"
+master_txt_summary = "logs/classical_benchmark_summary.txt"
+master_csv_summary = "logs/classical_benchmark_results.csv"
+model_save_path = "models/saved/xenopulse_net_weights.pth"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(run_txt_log),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+# ---------------------------------------------------------------------------
+# 2. ARCHITECTURE DEFINITION
+# ---------------------------------------------------------------------------
 
 class DilatedResidualBlock1D(nn.Module):
     """
@@ -115,9 +139,9 @@ class InvertedChannelAttention(nn.Module):
 
 class XenoPulseNet(nn.Module):
     """
-    XenoPulse-Net: Novel Custom Architecture synthesizing all 11 baseline paradigms.
+    XenoPulse-Net: Synthesizes all classical baseline paradigms.
     """
-    def __init__(self, in_channels=1, seq_len=201, num_classes=1):
+    def __init__(self, in_channels=1, seq_len=200, num_classes=1):
         super().__init__()
         
         self.stem_in = nn.Conv1d(in_channels, 32, kernel_size=7, stride=2, padding=3)
@@ -165,178 +189,157 @@ class XenoPulseNet(nn.Module):
         logits = self.classifier(pooled)
         return logits
 
+# ---------------------------------------------------------------------------
+# 3. BENCHMARK LOGGING UTILITY
+# ---------------------------------------------------------------------------
 
-# =====================================================================
-# 2. DATA LOADING & EPOCH-BY-EPOCH TRAINING
-# =====================================================================
-
-DATASET_PATH = "/home/arjunshenoy13/qml-exoplanet-detection/data/processed/master_lightcurves.csv"
-LOG_TXT_PATH = "logs/xenopulse_net.txt"
-LOG_CSV_PATH = "logs/classical_benchmark_results.csv"
-
-def log_message(msg):
-    print(msg)
-    os.makedirs("logs", exist_ok=True)
-    with open(LOG_TXT_PATH, "a") as f:
-        f.write(msg + "\n")
-
-def load_master_dataset(path):
-    log_message(f"📂 Reading master CSV: {path}")
-    df = pd.read_csv(path)
+def save_benchmark_logs(model_name, metrics):
+    """Appends XenoPulse-Net metrics to master summary TXT and CSV files."""
     
-    possible_targets = ['label', 'LABEL', 'target', 'Target', 'y', 'class', 'Class']
-    target_col = None
-    for col in possible_targets:
-        if col in df.columns:
-            target_col = col
-            break
-            
-    if target_col is None:
-        target_col = df.columns[0]
-        log_message(f"⚠️ Target column not explicitly named. Defaulting to first column: '{target_col}'")
-    else:
-        log_message(f"🎯 Target column detected: '{target_col}'")
+    # A. Master TXT Summary
+    with open(master_txt_summary, "a") as f:
+        f.write("=" * 65 + "\n")
+        f.write(f"MODEL: {model_name} | TIMESTAMP: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write("=" * 65 + "\n")
+        f.write(f"Test Accuracy:  {metrics['acc']*100:.2f}%\n")
+        f.write(f"Precision:      {metrics['precision']:.4f}\n")
+        f.write(f"Recall:         {metrics['recall']:.4f}\n")
+        f.write(f"F1-Score:       {metrics['f1']:.4f}\n")
+        f.write(f"ROC-AUC:        {metrics['auc']:.4f}\n")
+        f.write(f"Train Loss:     {metrics['train_loss']:.4f}\n")
+        f.write(f"Val Loss:       {metrics['val_loss']:.4f}\n")
+        f.write(f"Test Loss:      {metrics['test_loss']:.4f}\n")
+        f.write(f"Train Time:     {metrics['train_time']:.2f} seconds\n")
+        f.write(f"Weights Saved:  {model_save_path}\n")
+        f.write("=" * 65 + "\n\n")
 
-    ignore_cols = [target_col, 'id', 'ID', 'kepid', 'tic_id', 'source_id', 'Unnamed: 0', 'name', 'Name']
-    feature_cols = [c for c in df.columns if c not in ignore_cols]
+    # B. Master CSV Matrix
+    file_exists = os.path.exists(master_csv_summary)
+    headers = [
+        "timestamp", "model_name", "test_acc", "precision", 
+        "recall", "f1_score", "roc_auc", "train_loss", "val_loss", "test_loss", "train_time_sec"
+    ]
     
-    X_df = df[feature_cols].apply(pd.to_numeric, errors='coerce').fillna(0.0)
-    X = X_df.values.astype(np.float32)
-    
-    # z-score normalization per sample to stabilize gradients
-    means = np.mean(X, axis=1, keepdims=True)
-    stds = np.std(X, axis=1, keepdims=True) + 1e-8
-    X = (X - means) / stds
-
-    y_raw = pd.to_numeric(df[target_col], errors='coerce').fillna(0).values
-    unique_labels = np.unique(y_raw)
-    if set(unique_labels) == {1, 2}:
-        y_raw = y_raw - 1
+    with open(master_csv_summary, mode="a", newline="") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(headers)
+        writer.writerow([
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            model_name,
+            f"{metrics['acc']:.4f}",
+            f"{metrics['precision']:.4f}",
+            f"{metrics['recall']:.4f}",
+            f"{metrics['f1']:.4f}",
+            f"{metrics['auc']:.4f}",
+            f"{metrics['train_loss']:.4f}",
+            f"{metrics['val_loss']:.4f}",
+            f"{metrics['test_loss']:.4f}",
+            f"{metrics['train_time']:.2f}"
+        ])
         
-    y = y_raw.astype(np.float32)
+    logging.info(f"📝 Master TXT log updated : {master_txt_summary}")
+    logging.info(f"📊 Master CSV log updated : {master_csv_summary}")
+    logging.info(f"💾 Checkpoint Saved To    : {model_save_path}")
 
-    log_message(f"📊 Dataset Loaded: {X.shape[0]} samples, sequence length = {X.shape[1]}")
-    log_message(f"⚖️ Class distribution: Positives (1) = {int(np.sum(y == 1))}, Negatives (0) = {int(np.sum(y == 0))}")
-    return X, y
+# ---------------------------------------------------------------------------
+# 4. TRAINING & EVALUATION PIPELINE
+# ---------------------------------------------------------------------------
 
-def train_xenopulse_on_master():
-    os.makedirs("logs", exist_ok=True)
-    with open(LOG_TXT_PATH, "w") as f:
-        f.write("=== XenoPulse-Net Master Dataset Benchmark ===\n")
-
+def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    log_message(f"🚀 Execution Device: {device}")
+    logging.info(f"Using device: {device}")
 
-    X, y = load_master_dataset(DATASET_PATH)
+    csv_path = '/home/arjunshenoy13/qml-exoplanet-detection/data/processed/master_lightcurves.csv'
+    train_loader, val_loader, test_loader, _, _ = prepare_dataloaders(csv_path=csv_path)
 
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-
-    X_train_t = torch.tensor(X_train, dtype=torch.float32).unsqueeze(1)
-    y_train_t = torch.tensor(y_train, dtype=torch.float32)
-    X_val_t = torch.tensor(X_val, dtype=torch.float32).unsqueeze(1)
-    y_val_t = torch.tensor(y_val, dtype=torch.float32)
-
-    train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=32, shuffle=True)
-    val_loader = DataLoader(TensorDataset(X_val_t, y_val_t), batch_size=32, shuffle=False)
-
-    seq_len = X_train.shape[1]
-    model = XenoPulseNet(in_channels=1, seq_len=seq_len, num_classes=1).to(device)
-
+    model = XenoPulseNet(in_channels=1, seq_len=200, num_classes=1).to(device)
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.AdamW(model.parameters(), lr=5e-4, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=30, eta_min=1e-6)
 
-    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    log_message(f"🧠 Total Model Parameters: {total_params:,}")
-
     epochs = 30
-    log_message(f"🏋️ Starting Training for {epochs} Epochs...")
+    best_val_loss = float('inf')
     start_time = time.time()
+
+    logging.info("🚀 Training XenoPulse-Net Model...")
 
     for epoch in range(1, epochs + 1):
         model.train()
         train_loss = 0.0
-        for batch_x, batch_y in train_loader:
-            batch_x, batch_y = batch_x.to(device), batch_y.to(device)
-
+        for x_b, y_b in train_loader:
+            x_b, y_b = x_b.to(device), y_b.to(device).float()
             optimizer.zero_grad()
-            outputs = model(batch_x).squeeze(-1)
-            loss = criterion(outputs, batch_y)
+            out = model(x_b).squeeze(1)
+            loss = criterion(out, y_b)
             loss.backward()
             optimizer.step()
-
-            train_loss += loss.item() * batch_x.size(0)
-
-        scheduler.step()
+            train_loss += loss.item() * len(y_b)
+            
         train_loss /= len(train_loader.dataset)
 
-        # Log EVERY single epoch explicitly
-        log_message(f"Epoch [{epoch:02d}/{epochs}] - Loss: {train_loss:.6f}")
+        # Validation
+        model.eval()
+        val_loss = 0.0
+        with torch.no_grad():
+            for x_b, y_b in val_loader:
+                x_b, y_b = x_b.to(device), y_b.to(device).float()
+                out = model(x_b).squeeze(1)
+                loss = criterion(out, y_b)
+                val_loss += loss.item() * len(y_b)
+        val_loss /= len(val_loader.dataset)
+        
+        scheduler.step()
 
-    total_training_time = time.time() - start_time
-    log_message(f"⏱️ Training Completed in {total_training_time:.2f} seconds.")
+        # Checkpoint Saving: Save model state when validation loss improves
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            torch.save(model.state_dict(), model_save_path)
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f} 🔥 (Saved Checkpoint)")
+        else:
+            logging.info(f"Epoch {epoch:02d}/{epochs:02d} | Train Loss: {train_loss:.4f} | Val Loss: {val_loss:.4f}")
 
-    # Evaluation
+    total_train_time = time.time() - start_time
+
+    # Load best checkpoint for evaluation
+    if os.path.exists(model_save_path):
+        model.load_state_dict(torch.load(model_save_path, map_location=device))
+        logging.info(f"Loaded best weights from {model_save_path} for evaluation.")
+
+    # Testing Evaluation
     model.eval()
-    all_preds = []
-    all_targets = []
-
-    inference_start = time.time()
+    test_loss = 0.0
+    all_preds, all_probs, all_targets = [], [], []
     with torch.no_grad():
-        for batch_x, batch_y in val_loader:
-            batch_x = batch_x.to(device)
-            logits = model(batch_x).squeeze(-1)
-            probs = torch.sigmoid(logits)
+        for x_b, y_b in test_loader:
+            x_b, y_b = x_b.to(device), y_b.to(device).float()
+            out = model(x_b).squeeze(1)
+            loss = criterion(out, y_b)
+            test_loss += loss.item() * len(y_b)
+            probs = torch.sigmoid(out)
+            preds = (probs >= 0.5).long()
+            
+            all_probs.extend(probs.cpu().numpy())
+            all_preds.extend(preds.cpu().numpy())
+            all_targets.extend(y_b.cpu().numpy())
 
-            all_preds.extend(probs.cpu().numpy())
-            all_targets.extend(batch_y.numpy())
+    test_loss /= len(test_loader.dataset)
+    acc = accuracy_score(all_targets, all_preds)
+    prec, rec, f1, _ = precision_recall_fscore_support(all_targets, all_preds, average='binary')
+    auc = roc_auc_score(all_targets, all_probs)
 
-    total_inference_time = time.time() - inference_start
-    avg_inference_time_ms = (total_inference_time / len(y_val)) * 1000
+    logging.info("==== 🏆 FINAL XenoPulse-Net TEST RESULTS ====")
+    logging.info(f"Accuracy:  {acc*100:.2f}%")
+    logging.info(f"Precision: {prec:.4f}")
+    logging.info(f"Recall:    {rec:.4f}")
+    logging.info(f"F1-Score:  {f1:.4f}")
+    logging.info(f"ROC-AUC:   {auc:.4f}")
 
-    all_preds = np.array(all_preds)
-    all_targets = np.array(all_targets)
-    binary_preds = (all_preds >= 0.5).astype(int)
-
-    acc = accuracy_score(all_targets, binary_preds)
-    roc_auc = roc_auc_score(all_targets, all_preds)
-    f1 = f1_score(all_targets, binary_preds, zero_division=0)
-    precision = precision_score(all_targets, binary_preds, zero_division=0)
-    recall = recall_score(all_targets, binary_preds, zero_division=0)
-
-    log_message("\n==========================================")
-    log_message("📊 Real Dataset Evaluation Metrics")
-    log_message("==========================================")
-    log_message(f"Accuracy:        {acc:.4f}")
-    log_message(f"ROC-AUC:         {roc_auc:.4f}")
-    log_message(f"F1-Score:        {f1:.4f}")
-    log_message(f"Precision:       {precision:.4f}")
-    log_message(f"Recall:          {recall:.4f}")
-    log_message(f"Inference Speed: {avg_inference_time_ms:.2f} ms/sample")
-    log_message("==========================================")
-
-    # Append entry to classical_benchmark_results.csv with correct schema
-    file_exists = os.path.exists(LOG_CSV_PATH)
-    with open(LOG_CSV_PATH, mode='a', newline='') as csv_file:
-        fieldnames = ['model_name', 'test_acc', 'precision', 'recall', 'f1_score', 'roc_auc', 'train_time_sec']
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-
-        if not file_exists:
-            writer.writeheader()
-
-        writer.writerow({
-            'model_name': 'XenoPulse-Net',
-            'test_acc': f"{acc * 100:.2f}",
-            'precision': f"{precision:.4f}",
-            'recall': f"{recall:.4f}",
-            'f1_score': f"{f1:.4f}",
-            'roc_auc': f"{roc_auc:.4f}",
-            'train_time_sec': f"{total_training_time:.2f}"
-        })
-
-    log_message(f"✅ Results successfully appended to {LOG_CSV_PATH} and {LOG_TXT_PATH}")
+    save_benchmark_logs("XenoPulse-Net", {
+        "acc": acc, "precision": prec, "recall": rec, "f1": f1, "auc": auc,
+        "train_loss": train_loss, "val_loss": val_loss, "test_loss": test_loss,
+        "train_time": total_train_time
+    })
 
 if __name__ == "__main__":
-    train_xenopulse_on_master()
+    train()
