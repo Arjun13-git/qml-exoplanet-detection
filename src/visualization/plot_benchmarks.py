@@ -24,6 +24,11 @@ def find_column(df, candidates):
                 return orig_col
     return None
 
+def standardize_accuracy(series):
+    """Converts decimal accuracies (<= 1.0) to percentages (0-100%)."""
+    s_numeric = pd.to_numeric(series, errors='coerce')
+    return s_numeric.apply(lambda v: v * 100.0 if pd.notnull(v) and v <= 1.0 else v)
+
 def load_classical_data():
     class_path = "logs/classical_benchmark_results.csv"
     if not os.path.exists(class_path):
@@ -42,14 +47,13 @@ def load_classical_data():
 
     c_df = pd.DataFrame()
     c_df['model_name'] = df[model_col].astype(str).str.strip()
-    c_df['test_acc'] = pd.to_numeric(df[acc_col], errors='coerce') if acc_col else np.nan
+    c_df['test_acc'] = standardize_accuracy(df[acc_col]) if acc_col else np.nan
     c_df['precision'] = pd.to_numeric(df[prec_col], errors='coerce') if prec_col else np.nan
     c_df['recall'] = pd.to_numeric(df[rec_col], errors='coerce') if rec_col else np.nan
     c_df['f1_score'] = pd.to_numeric(df[f1_col], errors='coerce') if f1_col else np.nan
     c_df['roc_auc'] = pd.to_numeric(df[auc_col], errors='coerce') if auc_col else np.nan
     c_df['train_time_sec'] = pd.to_numeric(df[time_col], errors='coerce') if time_col else np.nan
 
-    # Target Classical Models filter
     allowed_classical = {
         'itransformer': 'iTransformer',
         'astronet': 'AstroNet',
@@ -108,18 +112,16 @@ def load_quantum_data():
     q_df['arch_raw'] = raw_q[arch_col].astype(str).str.strip() if arch_col else ''
     q_df['qubits'] = pd.to_numeric(raw_q[qubit_col], errors='coerce').fillna(0).astype(int) if qubit_col else 0
     q_df['latent'] = raw_q[latent_col].astype(str).str.strip().str.upper() if latent_col else ''
-    q_df['test_acc'] = pd.to_numeric(raw_q[acc_col], errors='coerce') if acc_col else np.nan
+    q_df['test_acc'] = standardize_accuracy(raw_q[acc_col]) if acc_col else np.nan
     q_df['precision'] = pd.to_numeric(raw_q[prec_col], errors='coerce') if prec_col else np.nan
     q_df['recall'] = pd.to_numeric(raw_q[rec_col], errors='coerce') if rec_col else np.nan
     q_df['f1_score'] = pd.to_numeric(raw_q[f1_col], errors='coerce') if f1_col else np.nan
     q_df['roc_auc'] = pd.to_numeric(raw_q[auc_col], errors='coerce') if auc_col else np.nan
     q_df['train_time_sec'] = pd.to_numeric(raw_q[time_col], errors='coerce') if time_col else np.nan
 
-    # Filter strictly for 4 and 8 Qubits, and PCA/CAE Latents
     q_df = q_df[q_df['qubits'].isin([4, 8])].copy()
     q_df = q_df[q_df['latent'].isin(['PCA', 'CAE'])].copy()
 
-    # Standardize Model Display Names
     def construct_q_name(row):
         arch = row['arch_raw'].lower()
         q_str = f"{row['qubits']}Q"
@@ -146,7 +148,8 @@ def plot_benchmark_metrics(df):
     x = np.arange(len(df))
     width = 0.25
 
-    acc_normalized = df['test_acc'] / 100.0 if df['test_acc'].max() > 1.0 else df['test_acc']
+    # All test_acc values are now guaranteed to be on a 0-100 scale
+    acc_normalized = df['test_acc'] / 100.0
 
     bars1 = ax.bar(x - width, df['roc_auc'], width, label='ROC-AUC', color='#2b5c8f', edgecolor='black', alpha=0.9)
     bars2 = ax.bar(x, df['f1_score'], width, label='F1-Score', color='#d95f02', edgecolor='black', alpha=0.9)
@@ -173,10 +176,10 @@ def plot_benchmark_metrics(df):
             ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.012, f"{yval:.3f}", 
                     ha='center', va='bottom', fontsize=7.0, fontweight='bold', rotation=90)
 
-    for bar in bars3:
+    for bar, orig_acc in zip(bars3, df['test_acc']):
         yval = bar.get_height()
-        if not np.isnan(yval):
-            ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.012, f"{yval * 100:.1f}%", 
+        if not np.isnan(yval) and not np.isnan(orig_acc):
+            ax.text(bar.get_x() + bar.get_width()/2.0, yval + 0.012, f"{orig_acc:.1f}%", 
                     ha='center', va='bottom', fontsize=7.0, fontweight='bold', rotation=90, color='#381d63')
 
     plt.tight_layout()
@@ -236,7 +239,6 @@ if __name__ == "__main__":
     if combined_df.empty:
         print("❌ No matching classical or quantum model data found.")
     else:
-        # Sort classical models first, then quantum
         combined_df['sort_order'] = combined_df['category'].apply(
             lambda cat: 0 if 'Classical' in cat else (1 if '4Q' in cat else 2)
         )
