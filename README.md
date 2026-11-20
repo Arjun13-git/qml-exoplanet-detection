@@ -40,6 +40,7 @@ This project utilizes publicly available stellar photometric lightcurve observat
 
 The dataset consists of normalized stellar lightcurves representing temporal flux variations, where the objective is binary classification of **planetary transit** vs **non-transit** events.
 
+#### Dataset URL: https://exoplanetarchive.ipac.caltech.edu/
 ### Dataset Overview
 
 - **Primary Source:** NASA Exoplanet Archive (IPAC/Caltech)
